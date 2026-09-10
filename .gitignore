@@ -1,0 +1,48 @@
+# ==============================================================================
+# 42 School — Webserv .gitignore
+# ==============================================================================
+
+# Compiled Objects & Dependencies
+*.o
+*.obj
+*.d
+*.gch
+
+# Binary Executables
+webserv
+*.out
+*.exe
+
+# Debugging, Symbols & Sanitizers
+*.dSYM/
+*.valgrind*
+valgrind.log
+valgrind-out.txt
+core
+core.*
+gmon.out
+
+# Runtime Logs
+*.log
+logs/
+
+# Temporary Uploads & Dynamic Server Content
+www/uploads/*
+!www/uploads/.gitkeep
+
+# Testing & Python Caches
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Editor & OS Metadata
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+
