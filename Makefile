@@ -6,7 +6,7 @@
 #    By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/24 06:39:09 by sklaokli          #+#    #+#              #
-#    Updated: 2026/09/11 11:51:12 by sklaokli         ###   ########.fr        #
+#    Updated: 2026/09/11 14:54:25 by sklaokli         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,8 @@ SRC_DIR		:=	src
 OBJ_DIR		:=	bin
 INC_DIR		:=	include
 
-FILES		:=	main.cpp
+FILES		:=	main.cpp \
+				Logger.cpp
 
 SRC			:=	$(addprefix $(SRC_DIR)/, $(FILES))
 OBJ			:=	$(addprefix $(OBJ_DIR)/, $(FILES:%.cpp=%.o))
