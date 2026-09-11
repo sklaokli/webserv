@@ -1,0 +1,40 @@
+#!/bin/bash
+# 42 School Webserv Commit-Msg Hook
+# Enforces Conventional Commits format (e.g. feat: ..., fix(parser): ..., docs: ...)
+
+COMMIT_MSG_FILE=$1
+COMMIT_MSG=$(grep -v '^#' "$COMMIT_MSG_FILE" | head -n 1 || true)
+
+# Allow empty / initial commits if git generates them
+if [ -z "$COMMIT_MSG" ] || [[ "$COMMIT_MSG" =~ ^Merge ]]; then
+    exit 0
+fi
+
+# Conventional Commits regex pattern:
+# <type>(<scope>): <subject> or <type>: <subject>
+PATTERN="^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\([a-zA-Z0-9_\.\-]+\))?!?: .+$"
+
+if ! echo "$COMMIT_MSG" | grep -q -E "$PATTERN"; then
+    echo -e "\033[0;31m[ERROR] Invalid commit message format!\033[0m"
+    echo -e "Your message: \"$COMMIT_MSG\""
+    echo ""
+    echo -e "\033[0;33mPlease follow Conventional Commits format:\033[0m"
+    echo -e "  <type>(<scope>): <description>"
+    echo ""
+    echo "Allowed types:"
+    echo "  feat:     A new feature (e.g. feat(http): add chunked parser)"
+    echo "  fix:      A bug fix (e.g. fix(cgi): prevent pipe deadlock)"
+    echo "  docs:     Documentation only changes"
+    echo "  style:    Code formatting / style"
+    echo "  refactor: Code changes that neither fix a bug nor add a feature"
+    echo "  perf:     A code change that improves performance"
+    echo "  test:     Adding or correcting tests"
+    echo "  chore:    Changes to build process, configs, or tooling"
+    echo "  build:    Changes affecting build system or dependencies"
+    echo ""
+    echo "Example: feat(config): parse server and location blocks"
+    exit 1
+fi
+
+exit 0
+
