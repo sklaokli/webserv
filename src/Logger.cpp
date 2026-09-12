@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 13:45:03 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/11 14:52:34 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/12 17:27:54 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,44 @@
 #include <ctime>
 #include <iostream>
 
+#define RESET "\033[0m"
+#define RED "\033[31m"
+#define GREEN "\033[32m"
+#define YELLOW "\033[33m"
+#define BLUE "\033[34m"
+#define MAGENTA "\033[35m"
+#define CYAN "\033[36m"
+#define WHITE "\033[37m"
+
 LogLevel Logger::_currentLevel = INFO;
-
-Logger::Logger() {}
-
-Logger::~Logger() {}
 
 void Logger::setLogLevel(LogLevel level) {
 	_currentLevel = level;
 }
 
 void Logger::log(LogLevel level, const std::string& message) {
-	if (level < _currentLevel) {
-		return;
+	if (level < _currentLevel) return;
+
+	const char* color = WHITE;
+	const char* tag = "LOG";
+
+	switch (level) {
+		case DEBUG:
+			color = CYAN;
+			tag = "DEBUG";
+			break;
+		case INFO:
+			color = GREEN;
+			tag = "INFO";
+			break;
+		case WARNING:
+			color = YELLOW;
+			tag = "WARN";
+			break;
+		case ERROR:
+			color = RED;
+			tag = "ERROR";
+			break;
 	}
 
 	time_t now = time(NULL);
@@ -34,31 +59,9 @@ void Logger::log(LogLevel level, const std::string& message) {
 	char time[32];
 	strftime(time, sizeof(time), "%Y-%m-%d %H:%M:%S", t);
 
-	const char* color = "";
-	const char* reset = "\033[0m";
-	const char* tag = "INFO";
-
-	switch (level) {
-		case DEBUG:
-			color = "\033[36m";  // Cyan
-			tag = "DEBUG";
-			break;
-		case INFO:
-			color = "\033[32m";  // Green
-			tag = "INFO";
-			break;
-		case WARNING:
-			color = "\033[33m";  // Yellow
-			tag = "WARN";
-			break;
-		case ERROR:
-			color = "\033[31m";  // Red
-			tag = "ERROR";
-			break;
-	}
-
 	std::ostream& out = (level == ERROR) ? std::cerr : std::cout;
-	out << "[" << time << "] " << color << "[" << tag << "] " << reset
+
+	out << "[" << time << "] " << color << "[" << tag << "]" << RESET << " "
 	    << message << std::endl;
 }
 
@@ -77,3 +80,13 @@ void Logger::warning(const std::string& message) {
 void Logger::error(const std::string& message) {
 	log(ERROR, message);
 }
+
+Logger::Logger() {}
+
+Logger::Logger(const Logger&) {}
+
+Logger& Logger::operator=(const Logger&) {
+	return *this;
+}
+
+Logger::~Logger() {}
