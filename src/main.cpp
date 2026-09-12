@@ -6,11 +6,13 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 11:51:46 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/12 18:18:16 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/13 02:45:46 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
+#include "Config.hpp"
 #include "Logger.hpp"
+#include "Parser.hpp"
 #include <iostream>
 #include <string>
 
@@ -40,11 +42,10 @@ int main(int argc, char** argv) {
 	std::string configPath;
 	if (!parseArgs(argc, argv, configPath)) return 1;
 
+	Logger::info("Starting webserv...");
 	try {
-		Logger::info("Starting webserv...");
-
-		// Config config = Config::parse(configPath);
-		Logger::info("Loaded config: " + configPath);
+		Logger::info("Loading configuration...");
+		Config config = Parser::parse(configPath);
 
 		// Server webserv(config);
 		// webserv.run();

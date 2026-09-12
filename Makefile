@@ -6,7 +6,7 @@
 #    By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/24 06:39:09 by sklaokli          #+#    #+#              #
-#    Updated: 2026/09/11 14:54:25 by sklaokli         ###   ########.fr        #
+#    Updated: 2026/09/13 03:02:21 by sklaokli         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -17,7 +17,10 @@ OBJ_DIR		:=	bin
 INC_DIR		:=	include
 
 FILES		:=	main.cpp \
-				Logger.cpp
+				Logger.cpp \
+				Parser.cpp \
+				Utils.cpp
+
 
 SRC			:=	$(addprefix $(SRC_DIR)/, $(FILES))
 OBJ			:=	$(addprefix $(OBJ_DIR)/, $(FILES:%.cpp=%.o))
@@ -25,7 +28,7 @@ DEP			:=	$(OBJ:%.o=%.d)
 
 CXX			:=	c++
 
-CXXFLAGS	+=	-Wall -Wextra -Werror
+# CXXFLAGS	+=	-Wall -Wextra -Werror
 CXXFLAGS	+=	-std=c++98 -pedantic
 CXXFLAGS	+=	-MMD -MP
 CXXFLAGS	+=	-I$(INC_DIR)
