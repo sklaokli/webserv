@@ -6,29 +6,28 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 11:51:46 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/13 02:45:46 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/13 16:40:07 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Config.hpp"
-#include "Logger.hpp"
-#include "Parser.hpp"
+#include "config/Config.hpp"
+#include "utils/Logger.hpp"
 #include <iostream>
 #include <string>
 
-static bool parseArgs(int argc, char** argv, std::string& configPath) {
-	configPath = "conf/default.conf";
+static bool parseArgs(int argc, char** argv, std::string& filePath) {
+	filePath = "conf/default.conf";
 	bool configSet = false;
 
 	for (int i = 1; i < argc; ++i) {
 		std::string arg = argv[i];
 		if (arg == "--debug" || arg == "-d") {
 			Logger::setLogLevel(DEBUG);
-		} else if (arg[0] == '-') {
+		} else if (!arg.empty() && arg[0] == '-') {
 			Logger::error("Unknown option '" + arg + "'");
 			return false;
 		} else if (!configSet) {
-			configPath = arg;
+			filePath = arg;
 			configSet = true;
 		} else {
 			Logger::error("Too many arguments");
@@ -39,13 +38,15 @@ static bool parseArgs(int argc, char** argv, std::string& configPath) {
 }
 
 int main(int argc, char** argv) {
-	std::string configPath;
-	if (!parseArgs(argc, argv, configPath)) return 1;
+	std::string filePath;
+	if (!parseArgs(argc, argv, filePath)) return 1;
 
 	Logger::info("Starting webserv...");
 	try {
 		Logger::info("Loading configuration...");
-		Config config = Parser::parse(configPath);
+
+		Config config(filePath);
+		config.parse();
 
 		// Server webserv(config);
 		// webserv.run();

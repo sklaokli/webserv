@@ -6,15 +6,15 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 01:22:10 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/13 05:06:06 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/13 17:16:41 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef PARSER_HPP
 #define PARSER_HPP
 
-#include "Config.hpp"
-#include "Logger.hpp"
+#include "config/Config.hpp"
+#include "utils/Logger.hpp"
 #include <string>
 #include <vector>
 
@@ -26,23 +26,24 @@ struct Token {
 
 class Parser {
 public:
-	Parser();
+	Parser(const std::string& filePath);
+	Parser(const Parser& other);
+	Parser& operator=(const Parser& other);
 	~Parser();
 
-	static Config parse(const std::string&);
+	Config execute();
 
 private:
-	Parser(const Parser&);
-	Parser& operator=(const Parser&);
+	std::string _filePath;
+	std::vector<Token> _tokens;
+	size_t _i;
 
-	static std::vector<Token> tokenize(const std::string&);
-	static void expect(const std::vector<Token>& tokens, size_t& i,
-	    const std::string& expected);
-	static void parseServer(
-	    const std::vector<Token>& tokens, size_t& i, Config& config);
-	static void parseLocation(const std::vector<Token>& tokens, size_t& i);
-	static void parseDirective(
-	    const std::vector<Token>& tokens, size_t& i, const std::string& indent);
+	Parser();
+	std::vector<Token> tokenize(const std::string&);
+	void expect(const std::string&);
+	void parseServer(Config&);
+	void parseLocation();
+	void parseDirective(const std::string&);
 };
 
 #endif
