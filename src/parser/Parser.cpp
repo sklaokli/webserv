@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 15:13:48 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/16 01:02:12 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/16 01:21:05 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,7 +54,6 @@ Config Parser::execute() {
 		parseServer(config);
 	}
 
-	Logger::debug("Configuration parsed successfully!");
 	return config;
 }
 

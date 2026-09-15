@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 15:42:28 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/16 01:17:35 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/16 01:22:28 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,9 @@ void Config::addServer(const ServerConfig& server) {
 }
 
 void Config::dump() const {
+	Logger::debug("");
 	Logger::debug("===================== CONFIGURATION =====================");
+	Logger::debug("");
 	Logger::debug("Total virtual servers: " + Utils::toString(_servers.size()));
 	for (size_t i = 0; i < _servers.size(); ++i) {
 		const ServerConfig& s = _servers[i];
@@ -142,5 +144,7 @@ void Config::dump() const {
 			}
 		}
 	}
+	Logger::debug("");
 	Logger::debug("=========================================================");
+	Logger::debug("");
 }
