@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 15:13:48 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/13 17:16:37 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/15 23:29:58 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ Config Parser::execute() {
 		parseServer(config);
 	}
 
-	Logger::info("Configuration parsed successfully!");
+	Logger::debug("Configuration parsed successfully!");
 	return config;
 }
 
@@ -76,11 +76,10 @@ void Parser::parseLocation() {
 		throw std::runtime_error(
 		    "Missing location path on line " + Utils::toString(line));
 	}
-	std::string path = _tokens[_i].value;
 	++_i;
 
-	Logger::debug(
-	    formatLine(line) + "  Block: 'location' path: \"" + path + "\"");
+	Logger::debug(formatLine(line) + "  Block: 'location' path: \"" +
+	              _tokens[_i].value + "\"");
 
 	expect("{");
 
@@ -92,13 +91,13 @@ void Parser::parseLocation() {
 }
 
 void Parser::parseDirective(const std::string& indent) {
-	std::string directive = _tokens[_i].value;
 	size_t line = _tokens[_i].line;
 	++_i;
 
-	if (directive == ";" || directive == "{" || directive == "}") {
-		throw std::runtime_error(
-		    "Unexpected '" + directive + "' on line " + Utils::toString(line));
+	if (_tokens[_i].value == ";" || _tokens[_i].value == "{" ||
+	    _tokens[_i].value == "}") {
+		throw std::runtime_error("Unexpected '" + _tokens[_i].value +
+		                         "' on line " + Utils::toString(line));
 	}
 
 	std::vector<std::string> args;
@@ -117,8 +116,8 @@ void Parser::parseDirective(const std::string& indent) {
 	}
 	argsSummary += "]";
 
-	Logger::debug(formatLine(line) + indent + "Directive: '" + directive +
-	              "' -> " + argsSummary);
+	Logger::debug(formatLine(line) + indent + "Directive: '" +
+	              _tokens[_i].value + "' -> " + argsSummary);
 }
 
 void Parser::expect(const std::string& expected) {
