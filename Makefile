@@ -6,7 +6,7 @@
 #    By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/24 06:39:09 by sklaokli          #+#    #+#              #
-#    Updated: 2026/09/16 00:13:47 by sklaokli         ###   ########.fr        #
+#    Updated: 2026/09/16 00:55:42 by sklaokli         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -19,6 +19,10 @@ INC_DIR		:=	include
 SRC_MAIN	:=	main.cpp
 
 SRC_CONFIG	:=	Config.cpp \
+				ServerConfig.cpp \
+				LocationConfig.cpp
+
+SRC_PARSER	:=	Lexer.cpp \
 				Parser.cpp
 
 SRC_UTILS	:=	Logger.cpp \
@@ -26,6 +30,7 @@ SRC_UTILS	:=	Logger.cpp \
 
 SRC			:=	$(addprefix $(SRC_DIR)/, $(SRC_MAIN)) \
 				$(addprefix $(SRC_DIR)/config/, $(SRC_CONFIG)) \
+				$(addprefix $(SRC_DIR)/parser/, $(SRC_PARSER)) \
 				$(addprefix $(SRC_DIR)/utils/, $(SRC_UTILS))
 
 OBJ			:=	$(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)

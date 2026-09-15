@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ConfigParser.hpp                                   :+:      :+:    :+:   */
+/*   Parser.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 01:22:10 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/16 00:09:57 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/16 00:55:42 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,15 +14,12 @@
 #define CONFIGPARSER_HPP
 
 #include "config/Config.hpp"
+#include "config/LocationConfig.hpp"
+#include "config/ServerConfig.hpp"
+#include "parser/Lexer.hpp"
 #include "utils/Logger.hpp"
 #include <string>
 #include <vector>
-
-struct Token {
-	std::string value;
-	size_t line;
-	Token(const std::string&, size_t);
-};
 
 class Parser {
 public:
@@ -39,11 +36,13 @@ private:
 	size_t _i;
 
 	Parser();
-	std::vector<Token> tokenize(const std::string&);
 	void expect(const std::string&);
 	void parseServer(Config&);
-	void parseLocation();
-	void parseDirective(const std::string&);
+	LocationConfig parseLocation();
+	void readDirective(std::string& name, std::vector<std::string>& args,
+	    size_t& line, const std::string& indent);
+	void parseServerDirective(ServerConfig& server);
+	void parseLocationDirective(LocationConfig& loc);
 };
 
 #endif
