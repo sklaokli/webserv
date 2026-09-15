@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 15:42:28 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/16 00:49:01 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/16 01:17:35 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,13 +53,13 @@ void Config::addServer(const ServerConfig& server) {
 }
 
 void Config::dump() const {
-	Logger::debug("=== Parsed Configuration Summary ===");
+	Logger::debug("===================== CONFIGURATION =====================");
 	Logger::debug("Total virtual servers: " + Utils::toString(_servers.size()));
 	for (size_t i = 0; i < _servers.size(); ++i) {
 		const ServerConfig& s = _servers[i];
-		Logger::debug("--- Server [" + Utils::toString(i) + "] ---");
-		Logger::debug("  Host: " + s.getHost() +
-		              " Port: " + Utils::toString(s.getPort()));
+		Logger::debug("");
+		Logger::debug("[Server " + Utils::toString(i) + "] " + s.getHost() +
+		              ":" + Utils::toString(s.getPort()));
 
 		std::string names = "";
 		for (size_t j = 0; j < s.getServerNames().size(); ++j) {
@@ -74,12 +74,32 @@ void Config::dump() const {
 
 		const std::map<int, std::string>& eps = s.getErrorPages();
 		if (!eps.empty()) {
-			std::string epStr = "";
+			Logger::debug("  Error Pages:");
+			std::vector<std::pair<std::string, std::vector<int> > > grouped;
 			for (std::map<int, std::string>::const_iterator it = eps.begin();
 			     it != eps.end(); ++it) {
-				epStr += Utils::toString(it->first) + "->" + it->second + " ";
+				bool found = false;
+				for (size_t g = 0; g < grouped.size(); ++g) {
+					if (grouped[g].first == it->second) {
+						grouped[g].second.push_back(it->first);
+						found = true;
+						break;
+					}
+				}
+				if (!found) {
+					std::vector<int> codes;
+					codes.push_back(it->first);
+					grouped.push_back(std::make_pair(it->second, codes));
+				}
 			}
-			Logger::debug("  Error Pages: " + epStr);
+			for (size_t g = 0; g < grouped.size(); ++g) {
+				std::string codesStr = "";
+				for (size_t c = 0; c < grouped[g].second.size(); ++c) {
+					if (c > 0) codesStr += ", ";
+					codesStr += Utils::toString(grouped[g].second[c]);
+				}
+				Logger::debug("    [" + codesStr + "] -> " + grouped[g].first);
+			}
 		}
 
 		Logger::debug(
@@ -97,6 +117,11 @@ void Config::dump() const {
 			Logger::debug("      Index: " + l.getIndex());
 			Logger::debug("      Autoindex: " +
 			              std::string(l.getAutoindex() ? "on" : "off"));
+			if (l.getClientMaxBodySize() != s.getClientMaxBodySize()) {
+				Logger::debug("      Client Max Body Size: " +
+				              Utils::toString(l.getClientMaxBodySize()) +
+				              " bytes");
+			}
 			if (l.hasRedirect()) {
 				Logger::debug(
 				    "      Redirect: " + Utils::toString(l.getRedirectCode()) +
@@ -108,15 +133,14 @@ void Config::dump() const {
 			}
 			const std::map<std::string, std::string>& cgis = l.getCgiExt();
 			if (!cgis.empty()) {
-				std::string cgiStr = "";
+				Logger::debug("      CGI Handlers:");
 				for (std::map<std::string, std::string>::const_iterator it =
 				         cgis.begin();
 				     it != cgis.end(); ++it) {
-					cgiStr += it->first + "->" + it->second + " ";
+					Logger::debug("        " + it->first + " -> " + it->second);
 				}
-				Logger::debug("      CGI: " + cgiStr);
 			}
 		}
 	}
-	Logger::debug("=====================================");
+	Logger::debug("=========================================================");
 }
