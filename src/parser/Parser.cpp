@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 15:13:48 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/16 00:55:42 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/16 01:02:12 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,18 @@ Parser::Parser(const std::string& filePath) : _filePath(filePath), _i(0) {
 
 	Lexer lexer;
 	_tokens = lexer.tokenize(content);
+}
+
+Parser::Parser(const Parser& other)
+    : _filePath(other._filePath), _tokens(other._tokens), _i(other._i) {}
+
+Parser& Parser::operator=(const Parser& other) {
+	if (this != &other) {
+		_filePath = other._filePath;
+		_tokens = other._tokens;
+		_i = other._i;
+	}
+	return *this;
 }
 
 Parser::~Parser() {}
@@ -322,16 +334,4 @@ void Parser::expect(const std::string& expected) {
 	}
 
 	++_i;
-}
-
-Parser::Parser(const Parser& other)
-    : _filePath(other._filePath), _tokens(other._tokens), _i(other._i) {}
-
-Parser& Parser::operator=(const Parser& other) {
-	if (this != &other) {
-		_filePath = other._filePath;
-		_tokens = other._tokens;
-		_i = other._i;
-	}
-	return *this;
 }
