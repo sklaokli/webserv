@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 15:13:48 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/15 23:29:58 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/16 00:13:38 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,10 +76,12 @@ void Parser::parseLocation() {
 		throw std::runtime_error(
 		    "Missing location path on line " + Utils::toString(line));
 	}
+
+	std::string path = _tokens[_i].value;
 	++_i;
 
-	Logger::debug(formatLine(line) + "  Block: 'location' path: \"" +
-	              _tokens[_i].value + "\"");
+	Logger::debug(
+	    formatLine(line) + "  Block: 'location' path: \"" + path + "\"");
 
 	expect("{");
 
@@ -92,6 +94,7 @@ void Parser::parseLocation() {
 
 void Parser::parseDirective(const std::string& indent) {
 	size_t line = _tokens[_i].line;
+	std::string directive = _tokens[_i].value;
 	++_i;
 
 	if (_tokens[_i].value == ";" || _tokens[_i].value == "{" ||
@@ -116,8 +119,8 @@ void Parser::parseDirective(const std::string& indent) {
 	}
 	argsSummary += "]";
 
-	Logger::debug(formatLine(line) + indent + "Directive: '" +
-	              _tokens[_i].value + "' -> " + argsSummary);
+	Logger::debug(formatLine(line) + indent + "Directive: '" + directive +
+	              "' -> " + argsSummary);
 }
 
 void Parser::expect(const std::string& expected) {

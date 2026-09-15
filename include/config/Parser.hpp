@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Parser.hpp                                         :+:      :+:    :+:   */
+/*   ConfigParser.hpp                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 01:22:10 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/13 17:16:41 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/16 00:09:57 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef PARSER_HPP
-#define PARSER_HPP
+#ifndef CONFIGPARSER_HPP
+#define CONFIGPARSER_HPP
 
 #include "config/Config.hpp"
 #include "utils/Logger.hpp"
