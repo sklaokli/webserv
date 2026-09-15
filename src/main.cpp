@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 11:51:46 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/12 18:18:16 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/16 01:39:17 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,19 +14,25 @@
 #include <iostream>
 #include <string>
 
-static bool parseArgs(int argc, char** argv, std::string& configPath) {
-	configPath = "conf/default.conf";
+static bool parseArgs(int argc, char** argv, std::string& filePath) {
+	filePath = "conf/default.conf";
 	bool configSet = false;
+	bool debugSet = false;
 
 	for (int i = 1; i < argc; ++i) {
 		std::string arg = argv[i];
 		if (arg == "--debug" || arg == "-d") {
+			if (debugSet) {
+				Logger::error("Duplicate option '" + arg + "'");
+				return false;
+			}
 			Logger::setLogLevel(DEBUG);
-		} else if (arg[0] == '-') {
+			debugSet = true;
+		} else if (!arg.empty() && arg[0] == '-') {
 			Logger::error("Unknown option '" + arg + "'");
 			return false;
 		} else if (!configSet) {
-			configPath = arg;
+			filePath = arg;
 			configSet = true;
 		} else {
 			Logger::error("Too many arguments");
@@ -37,14 +43,15 @@ static bool parseArgs(int argc, char** argv, std::string& configPath) {
 }
 
 int main(int argc, char** argv) {
-	std::string configPath;
-	if (!parseArgs(argc, argv, configPath)) return 1;
+	std::string filePath;
+	if (!parseArgs(argc, argv, filePath)) return 1;
 
+	Logger::info("Starting webserv...");
 	try {
-		Logger::info("Starting webserv...");
+		Logger::info("Loading configuration...");
 
-		// Config config = Config::parse(configPath);
-		Logger::info("Loaded config: " + configPath);
+		// Config config(filePath);
+		// config.parse();
 
 		// Server webserv(config);
 		// webserv.run();
