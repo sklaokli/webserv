@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 00:20:00 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 00:06:50 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 00:12:31 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,8 @@ ServerConfig::ServerConfig()
     , _root("./www")
     , _index("index.html")
     , _errorPages()
-    , _locations() {}
+    , _locations()
+    , _isDefault(false) {}
 
 ServerConfig::ServerConfig(const ServerConfig& other)
     : _host(other._host)
@@ -34,7 +35,8 @@ ServerConfig::ServerConfig(const ServerConfig& other)
     , _root(other._root)
     , _index(other._index)
     , _errorPages(other._errorPages)
-    , _locations(other._locations) {}
+    , _locations(other._locations)
+    , _isDefault(other._isDefault) {}
 
 ServerConfig& ServerConfig::operator=(const ServerConfig& other) {
 	if (this != &other) {
@@ -46,6 +48,7 @@ ServerConfig& ServerConfig::operator=(const ServerConfig& other) {
 		_index = other._index;
 		_errorPages = other._errorPages;
 		_locations = other._locations;
+		_isDefault = other._isDefault;
 	}
 	return *this;
 }
@@ -84,6 +87,14 @@ const std::vector<LocationConfig>& ServerConfig::getLocations() const {
 	return _locations;
 }
 
+bool ServerConfig::isDefault() const {
+	return _isDefault;
+}
+
+void ServerConfig::setDefault(bool isDefault) {
+	_isDefault = isDefault;
+}
+
 LocationConfig& ServerConfig::addLocation(const std::string& path) {
 	_locations.push_back(LocationConfig(path));
 	return _locations.back();
@@ -102,7 +113,7 @@ typedef std::vector<ErrorGroup> ErrorGroups;
 void ServerConfig::dump(size_t index) const {
 	Logger::info("");
 	Logger::info("[Server " + Utils::toString(index) + "] " + _host + ":" +
-	             Utils::toString(_port));
+	             Utils::toString(_port) + (_isDefault ? " (default)" : ""));
 
 	std::string names = "";
 	for (std::vector<std::string>::const_iterator it = _serverNames.begin();
@@ -163,29 +174,36 @@ std::string ServerConfig::getErrorPage(int code) const {
 	return "";
 }
 
+static std::string normalizePath(const std::string& p) {
+	if (p.length() > 1 && p[p.length() - 1] == '/') {
+		return p.substr(0, p.length() - 1);
+	}
+	return p;
+}
+
 const LocationConfig* ServerConfig::findLocation(const std::string& uri) const {
 	const LocationConfig* bestMatch = NULL;
 	size_t longestMatchLen = 0;
+	std::string normUri = normalizePath(uri);
 
 	for (std::vector<LocationConfig>::const_iterator it = _locations.begin();
 	     it != _locations.end(); ++it) {
-		const std::string& locPath = it->getPath();
-		if (uri == locPath) {
-			if (locPath.length() >= longestMatchLen) {
-				longestMatchLen = locPath.length();
+		std::string normLoc = normalizePath(it->getPath());
+		if (normUri == normLoc) {
+			if (normLoc.length() >= longestMatchLen) {
+				longestMatchLen = normLoc.length();
 				bestMatch = &(*it);
 			}
-		} else if (locPath == "/") {
+		} else if (normLoc == "/") {
 			if (1 >= longestMatchLen) {
 				longestMatchLen = 1;
 				bestMatch = &(*it);
 			}
-		} else if (uri.find(locPath) == 0) {
-			if (locPath[locPath.length() - 1] == '/' ||
-			    (uri.length() > locPath.length() &&
-			        uri[locPath.length()] == '/')) {
-				if (locPath.length() >= longestMatchLen) {
-					longestMatchLen = locPath.length();
+		} else if (normUri.find(normLoc) == 0) {
+			if (normUri.length() > normLoc.length() &&
+			    normUri[normLoc.length()] == '/') {
+				if (normLoc.length() >= longestMatchLen) {
+					longestMatchLen = normLoc.length();
 					bestMatch = &(*it);
 				}
 			}
@@ -242,8 +260,20 @@ void ServerConfig::handleListen(const std::vector<Token>& tokens) {
 	std::string portStr = arg;
 
 	if (colon != std::string::npos) {
-		_host = arg.substr(0, colon);
+		if (colon + 1 >= arg.length()) {
+			throw std::runtime_error("Missing port after ':' on line " +
+			                         Utils::toString(tokens[0].line));
+		}
+		if (colon == 0) {
+			_host = "127.0.0.1";
+		} else {
+			_host = arg.substr(0, colon);
+		}
 		portStr = arg.substr(colon + 1);
+	}
+	if (!Utils::isValidHost(_host)) {
+		throw std::runtime_error("Invalid host '" + _host + "' on line " +
+		                         Utils::toString(tokens[0].line));
 	}
 	int port = Utils::toInt(portStr);
 	if (port <= 0 || port > 65535) {
@@ -255,6 +285,11 @@ void ServerConfig::handleListen(const std::vector<Token>& tokens) {
 
 void ServerConfig::handleHost(const std::vector<Token>& tokens) {
 	assertArgs(tokens, 1);
+	if (!Utils::isValidHost(tokens[1].value)) {
+		throw std::runtime_error("Invalid host '" + tokens[1].value +
+		                         "' on line " +
+		                         Utils::toString(tokens[0].line));
+	}
 	_host = tokens[1].value;
 }
 

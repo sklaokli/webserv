@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 00:20:00 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 00:06:46 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 00:12:31 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,8 @@ public:
 
 	std::string getErrorPage(int code) const;
 	const LocationConfig* findLocation(const std::string& uri) const;
+	bool isDefault() const;
+	void setDefault(bool isDefault);
 
 private:
 	void handleListen(const std::vector<Token>& tokens);
@@ -63,6 +65,7 @@ private:
 	std::string _index;
 	ErrorPageMap _errorPages;
 	std::vector<LocationConfig> _locations;
+	bool _isDefault;
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 02:22:53 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 00:04:19 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 00:12:31 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ public:
 
 private:
 	ServerConfig& addServer();
+	void validate();
 
 	std::string _path;
 	std::vector<ServerConfig> _servers;

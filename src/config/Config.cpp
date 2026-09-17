@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 15:42:28 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 00:04:19 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 00:12:31 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@ Config::~Config() {}
 void Config::parse() {
 	std::string content = Utils::readFile(_path);
 	if (content.empty()) {
-		throw std::runtime_error("Unable to read configuration file: " + _path);
+		throw std::runtime_error("Configuration file is empty: " + _path);
 	}
 	Logger::debug(
 	    "Read " + Utils::toString(content.length()) + " bytes from " + _path);
@@ -54,6 +54,7 @@ void Config::parse() {
 		throw std::runtime_error("No server blocks found in " + _path);
 	}
 
+	validate();
 	dump();
 }
 
@@ -79,4 +80,61 @@ void Config::dump() const {
 		it->dump(i);
 	}
 	Logger::info("");
+}
+
+void Config::validate() {
+	std::vector<std::string> seenEndpoints;
+
+	for (std::vector<ServerConfig>::iterator sit = _servers.begin();
+	     sit != _servers.end(); ++sit) {
+		std::string endpoint =
+		    sit->getHost() + ":" + Utils::toString(sit->getPort());
+
+		bool firstForEndpoint = true;
+		for (size_t i = 0; i < seenEndpoints.size(); ++i) {
+			if (seenEndpoints[i] == endpoint) {
+				firstForEndpoint = false;
+				break;
+			}
+		}
+
+		if (firstForEndpoint) {
+			seenEndpoints.push_back(endpoint);
+			sit->setDefault(true);
+		}
+
+		const std::vector<LocationConfig>& locs = sit->getLocations();
+		for (size_t i = 0; i < locs.size(); ++i) {
+			for (size_t j = i + 1; j < locs.size(); ++j) {
+				if (locs[i].getPath() == locs[j].getPath()) {
+					throw std::runtime_error("Duplicate location path '" +
+					                         locs[i].getPath() +
+					                         "' in server " + endpoint);
+				}
+			}
+		}
+	}
+
+	for (size_t i = 0; i < _servers.size(); ++i) {
+		std::string ep1 = _servers[i].getHost() + ":" +
+		                  Utils::toString(_servers[i].getPort());
+		const std::vector<std::string>& names1 = _servers[i].getServerNames();
+
+		for (size_t j = i + 1; j < _servers.size(); ++j) {
+			std::string ep2 = _servers[j].getHost() + ":" +
+			                  Utils::toString(_servers[j].getPort());
+			if (ep1 != ep2) continue;
+
+			const std::vector<std::string>& names2 =
+			    _servers[j].getServerNames();
+			for (size_t n1 = 0; n1 < names1.size(); ++n1) {
+				for (size_t n2 = 0; n2 < names2.size(); ++n2) {
+					if (names1[n1] == names2[n2]) {
+						throw std::runtime_error("Conflicting server_name '" +
+						                         names1[n1] + "' on " + ep1);
+					}
+				}
+			}
+		}
+	}
 }

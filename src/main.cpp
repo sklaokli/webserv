@@ -6,12 +6,13 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 11:51:46 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/13 16:40:07 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 00:13:30 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "config/Config.hpp"
 #include "utils/Logger.hpp"
+#include <csignal>
 #include <iostream>
 #include <string>
 

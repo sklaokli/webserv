@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 02:59:34 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/17 23:11:53 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 00:12:31 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,9 @@
 
 std::string Utils::readFile(const std::string& path) {
 	std::ifstream file(path.c_str());
-	if (!file.is_open()) return "";
+	if (!file.is_open()) {
+		throw std::runtime_error("Unable to open file: " + path);
+	}
 	std::ostringstream ss;
 	ss << file.rdbuf();
 	return ss.str();
@@ -79,7 +81,38 @@ size_t Utils::parseSize(const std::string& str) {
 	if (!(iss >> baseVal) || !iss.eof()) {
 		throw std::runtime_error("Invalid size value: '" + str + "'");
 	}
+	if (multiplier > 1 && baseVal > (static_cast<size_t>(-1) / multiplier)) {
+		throw std::runtime_error(
+		    "Size value causes integer overflow: '" + str + "'");
+	}
 	return baseVal * multiplier;
+}
+
+bool Utils::isValidHost(const std::string& host) {
+	if (host.empty()) return false;
+	if (host == "localhost") return true;
+
+	size_t start = 0;
+	size_t dots = 0;
+
+	for (size_t i = 0; i <= host.length(); ++i) {
+		if (i == host.length() || host[i] == '.') {
+			if (i == start || i - start > 3) return false;
+			std::string octetStr = host.substr(start, i - start);
+			for (size_t j = 0; j < octetStr.length(); ++j) {
+				if (!std::isdigit(static_cast<unsigned char>(octetStr[j]))) {
+					return false;
+				}
+			}
+			int octet = toInt(octetStr);
+			if (octet < 0 || octet > 255) return false;
+			if (i < host.length()) {
+				++dots;
+				start = i + 1;
+			}
+		}
+	}
+	return dots == 3;
 }
 
 Utils::Utils() {}
