@@ -6,23 +6,34 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 00:20:00 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/16 00:29:05 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 00:06:43 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef LOCATIONCONFIG_HPP
 #define LOCATIONCONFIG_HPP
 
+#include "parser/Lexer.hpp"
 #include <map>
 #include <string>
 #include <vector>
 
+class ServerConfig;
+
 class LocationConfig {
 public:
+	typedef std::map<std::string, std::string> CgiMap;
+
 	LocationConfig();
+	LocationConfig(const std::string& path);
 	LocationConfig(const LocationConfig& other);
 	LocationConfig& operator=(const LocationConfig& other);
 	~LocationConfig();
+
+	void applyDirective(const std::vector<Token>& tokens);
+	void inherit(const ServerConfig& server);
+
+	void dump(size_t serverBodySize = 0) const;
 
 	const std::string& getPath() const;
 	const std::vector<std::string>& getAllowedMethods() const;
@@ -33,20 +44,8 @@ public:
 	const std::string& getRedirectUrl() const;
 	bool getUploadEnable() const;
 	const std::string& getUploadStore() const;
-	const std::map<std::string, std::string>& getCgiExt() const;
+	const CgiMap& getCgiExt() const;
 	size_t getClientMaxBodySize() const;
-
-	void setPath(const std::string& path);
-	void setAllowedMethods(const std::vector<std::string>& methods);
-	void addAllowedMethod(const std::string& method);
-	void setRoot(const std::string& root);
-	void setIndex(const std::string& index);
-	void setAutoindex(bool autoindex);
-	void setRedirect(int code, const std::string& url);
-	void setUploadEnable(bool enable);
-	void setUploadStore(const std::string& store);
-	void addCgiExt(const std::string& ext, const std::string& handler);
-	void setClientMaxBodySize(size_t size);
 
 	bool isMethodAllowed(const std::string& method) const;
 	bool hasRedirect() const;
@@ -54,6 +53,16 @@ public:
 	std::string getCgiHandler(const std::string& ext) const;
 
 private:
+	void handleAllowMethods(const std::vector<Token>& tokens);
+	void handleRoot(const std::vector<Token>& tokens);
+	void handleIndex(const std::vector<Token>& tokens);
+	void handleAutoindex(const std::vector<Token>& tokens);
+	void handleReturn(const std::vector<Token>& tokens);
+	void handleClientMaxBodySize(const std::vector<Token>& tokens);
+	void handleUploadEnable(const std::vector<Token>& tokens);
+	void handleUploadStore(const std::vector<Token>& tokens);
+	void handleCgiExt(const std::vector<Token>& tokens);
+
 	std::string _path;
 	std::vector<std::string> _allowedMethods;
 	std::string _root;
@@ -63,7 +72,7 @@ private:
 	std::string _redirectUrl;
 	bool _uploadEnable;
 	std::string _uploadStore;
-	std::map<std::string, std::string> _cgiExt;
+	CgiMap _cgiExt;
 	size_t _clientMaxBodySize;
 };
 

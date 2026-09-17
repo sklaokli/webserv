@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 00:32:00 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/16 00:55:42 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/17 23:43:50 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,7 @@
 #include "utils/Utils.hpp"
 #include <cctype>
 
-Token::Token(TokenType t, const std::string& val, size_t l)
-    : type(t), value(val), line(l) {}
+Token::Token(const std::string& val, size_t l) : value(val), line(l) {}
 
 Lexer::Lexer() {}
 
@@ -51,7 +50,7 @@ std::vector<Token> Lexer::tokenize(const std::string& content) {
 		if (c == '#') {
 			inComment = true;
 			if (!current.empty()) {
-				tokens.push_back(Token(TOKEN_WORD, current, line));
+				tokens.push_back(Token(current, line));
 				current.clear();
 			}
 			continue;
@@ -59,19 +58,16 @@ std::vector<Token> Lexer::tokenize(const std::string& content) {
 
 		if (c == '{' || c == '}' || c == ';') {
 			if (!current.empty()) {
-				tokens.push_back(Token(TOKEN_WORD, current, line));
+				tokens.push_back(Token(current, line));
 				current.clear();
 			}
-			TokenType type = (c == '{')   ? TOKEN_LBRACE
-			                 : (c == '}') ? TOKEN_RBRACE
-			                              : TOKEN_SEMICOLON;
-			tokens.push_back(Token(type, std::string(1, c), line));
+			tokens.push_back(Token(std::string(1, c), line));
 			continue;
 		}
 
 		if (std::isspace(static_cast<unsigned char>(c))) {
 			if (!current.empty()) {
-				tokens.push_back(Token(TOKEN_WORD, current, line));
+				tokens.push_back(Token(current, line));
 				current.clear();
 			}
 			if (c == '\n') {
@@ -84,7 +80,7 @@ std::vector<Token> Lexer::tokenize(const std::string& content) {
 	}
 
 	if (!current.empty()) {
-		tokens.push_back(Token(TOKEN_WORD, current, line));
+		tokens.push_back(Token(current, line));
 	}
 
 	Logger::debug("Tokenized " + Utils::toString(tokens.size()) +

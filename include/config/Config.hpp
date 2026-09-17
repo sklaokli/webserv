@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 02:22:53 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/16 00:29:16 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 00:04:19 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,11 @@ public:
 	void parse();
 	const std::string& getPath() const;
 	const std::vector<ServerConfig>& getServers() const;
-	void addServer(const ServerConfig& server);
 	void dump() const;
 
 private:
+	ServerConfig& addServer();
+
 	std::string _path;
 	std::vector<ServerConfig> _servers;
 };

@@ -6,12 +6,15 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 00:20:00 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/16 01:09:43 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 00:06:50 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "config/ServerConfig.hpp"
+#include "utils/Logger.hpp"
+#include "utils/Utils.hpp"
 #include <cstddef>
+#include <stdexcept>
 
 ServerConfig::ServerConfig()
     : _host("127.0.0.1")
@@ -73,7 +76,7 @@ const std::string& ServerConfig::getIndex() const {
 	return _index;
 }
 
-const std::map<int, std::string>& ServerConfig::getErrorPages() const {
+const ServerConfig::ErrorPageMap& ServerConfig::getErrorPages() const {
 	return _errorPages;
 }
 
@@ -81,64 +84,79 @@ const std::vector<LocationConfig>& ServerConfig::getLocations() const {
 	return _locations;
 }
 
-void ServerConfig::setHost(const std::string& host) {
-	_host = host;
-}
-
-void ServerConfig::setPort(int port) {
-	_port = port;
-}
-
-void ServerConfig::setServerNames(const std::vector<std::string>& names) {
-	_serverNames = names;
-}
-
-void ServerConfig::addServerName(const std::string& name) {
-	for (size_t i = 0; i < _serverNames.size(); ++i) {
-		if (_serverNames[i] == name) return;
-	}
-	_serverNames.push_back(name);
-}
-
-void ServerConfig::setClientMaxBodySize(size_t size) {
-	_clientMaxBodySize = size;
-}
-
-void ServerConfig::setRoot(const std::string& root) {
-	_root = root;
-}
-
-void ServerConfig::setIndex(const std::string& index) {
-	_index = index;
-}
-
-void ServerConfig::setErrorPage(int code, const std::string& uri) {
-	_errorPages[code] = uri;
-}
-
-void ServerConfig::addLocation(const LocationConfig& location) {
-	_locations.push_back(location);
+LocationConfig& ServerConfig::addLocation(const std::string& path) {
+	_locations.push_back(LocationConfig(path));
+	return _locations.back();
 }
 
 void ServerConfig::finalize() {
-	for (size_t i = 0; i < _locations.size(); ++i) {
-		if (_locations[i].getRoot().empty()) {
-			_locations[i].setRoot(_root);
+	for (std::vector<LocationConfig>::iterator it = _locations.begin();
+	     it != _locations.end(); ++it) {
+		it->inherit(*this);
+	}
+}
+
+typedef std::pair<std::string, std::vector<int> > ErrorGroup;
+typedef std::vector<ErrorGroup> ErrorGroups;
+
+void ServerConfig::dump(size_t index) const {
+	Logger::info("");
+	Logger::info("[Server " + Utils::toString(index) + "] " + _host + ":" +
+	             Utils::toString(_port));
+
+	std::string names = "";
+	for (std::vector<std::string>::const_iterator it = _serverNames.begin();
+	     it != _serverNames.end(); ++it) {
+		if (it != _serverNames.begin()) names += ", ";
+		names += *it;
+	}
+	Logger::info("  Server Names: [" + names + "]");
+	Logger::info("  Client Max Body Size: " +
+	             Utils::toString(_clientMaxBodySize) + " bytes");
+	Logger::info("  Root: " + _root);
+	Logger::info("  Index: " + _index);
+
+	if (!_errorPages.empty()) {
+		Logger::info("  Error Pages:");
+		ErrorGroups grouped;
+		for (ErrorPageMap::const_iterator it = _errorPages.begin();
+		     it != _errorPages.end(); ++it) {
+			bool found = false;
+			for (ErrorGroups::iterator git = grouped.begin();
+			     git != grouped.end(); ++git) {
+				if (git->first == it->second) {
+					git->second.push_back(it->first);
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				std::vector<int> codes;
+				codes.push_back(it->first);
+				grouped.push_back(std::make_pair(it->second, codes));
+			}
 		}
-		if (_locations[i].getIndex().empty()) {
-			_locations[i].setIndex(_index);
+		for (ErrorGroups::const_iterator git = grouped.begin();
+		     git != grouped.end(); ++git) {
+			std::string codesStr = "";
+			for (std::vector<int>::const_iterator cit = git->second.begin();
+			     cit != git->second.end(); ++cit) {
+				if (cit != git->second.begin()) codesStr += ", ";
+				codesStr += Utils::toString(*cit);
+			}
+			Logger::info("    [" + codesStr + "] -> " + git->first);
 		}
-		if (_locations[i].getClientMaxBodySize() == 0) {
-			_locations[i].setClientMaxBodySize(_clientMaxBodySize);
-		}
-		if (_locations[i].getAllowedMethods().empty()) {
-			_locations[i].addAllowedMethod("GET");
-		}
+	}
+
+	Logger::info("  Locations (" + Utils::toString(_locations.size()) + "):");
+	for (std::vector<LocationConfig>::const_iterator it = _locations.begin();
+	     it != _locations.end(); ++it) {
+		it->dump(_clientMaxBodySize);
 	}
 }
 
 std::string ServerConfig::getErrorPage(int code) const {
-	std::map<int, std::string>::const_iterator it = _errorPages.find(code);
+	ErrorPageMap::const_iterator it = _errorPages.find(code);
 	if (it != _errorPages.end()) {
 		return it->second;
 	}
@@ -149,17 +167,18 @@ const LocationConfig* ServerConfig::findLocation(const std::string& uri) const {
 	const LocationConfig* bestMatch = NULL;
 	size_t longestMatchLen = 0;
 
-	for (size_t i = 0; i < _locations.size(); ++i) {
-		const std::string& locPath = _locations[i].getPath();
+	for (std::vector<LocationConfig>::const_iterator it = _locations.begin();
+	     it != _locations.end(); ++it) {
+		const std::string& locPath = it->getPath();
 		if (uri == locPath) {
 			if (locPath.length() >= longestMatchLen) {
 				longestMatchLen = locPath.length();
-				bestMatch = &_locations[i];
+				bestMatch = &(*it);
 			}
 		} else if (locPath == "/") {
 			if (1 >= longestMatchLen) {
 				longestMatchLen = 1;
-				bestMatch = &_locations[i];
+				bestMatch = &(*it);
 			}
 		} else if (uri.find(locPath) == 0) {
 			if (locPath[locPath.length() - 1] == '/' ||
@@ -167,10 +186,123 @@ const LocationConfig* ServerConfig::findLocation(const std::string& uri) const {
 			        uri[locPath.length()] == '/')) {
 				if (locPath.length() >= longestMatchLen) {
 					longestMatchLen = locPath.length();
-					bestMatch = &_locations[i];
+					bestMatch = &(*it);
 				}
 			}
 		}
 	}
 	return bestMatch;
+}
+
+static void assertArgs(const std::vector<Token>& tokens, size_t expected) {
+	if (tokens.size() - 1 != expected) {
+		throw std::runtime_error("Directive '" + tokens[0].value +
+		                         "' requires " + Utils::toString(expected) +
+		                         (expected == 1 ? " argument" : " arguments") +
+		                         " on line " + Utils::toString(tokens[0].line));
+	}
+}
+
+static void assertMinArgs(
+    const std::vector<Token>& tokens, size_t minExpected) {
+	if (tokens.size() - 1 < minExpected) {
+		throw std::runtime_error(
+		    "Directive '" + tokens[0].value + "' requires at least " +
+		    Utils::toString(minExpected) +
+		    (minExpected == 1 ? " argument" : " arguments") + " on line " +
+		    Utils::toString(tokens[0].line));
+	}
+}
+
+void ServerConfig::applyDirective(const std::vector<Token>& tokens) {
+	const std::string& name = tokens[0].value;
+	if (name == "listen")
+		handleListen(tokens);
+	else if (name == "host")
+		handleHost(tokens);
+	else if (name == "server_name")
+		handleServerName(tokens);
+	else if (name == "client_max_body_size")
+		handleClientMaxBodySize(tokens);
+	else if (name == "root")
+		handleRoot(tokens);
+	else if (name == "index")
+		handleIndex(tokens);
+	else if (name == "error_page")
+		handleErrorPage(tokens);
+	else
+		throw std::runtime_error("Unknown directive '" + name + "' on line " +
+		                         Utils::toString(tokens[0].line));
+}
+
+void ServerConfig::handleListen(const std::vector<Token>& tokens) {
+	assertArgs(tokens, 1);
+	std::string arg = tokens[1].value;
+	size_t colon = arg.find(':');
+	std::string portStr = arg;
+
+	if (colon != std::string::npos) {
+		_host = arg.substr(0, colon);
+		portStr = arg.substr(colon + 1);
+	}
+	int port = Utils::toInt(portStr);
+	if (port <= 0 || port > 65535) {
+		throw std::runtime_error(
+		    "Invalid port on line " + Utils::toString(tokens[0].line));
+	}
+	_port = port;
+}
+
+void ServerConfig::handleHost(const std::vector<Token>& tokens) {
+	assertArgs(tokens, 1);
+	_host = tokens[1].value;
+}
+
+void ServerConfig::handleServerName(const std::vector<Token>& tokens) {
+	assertMinArgs(tokens, 1);
+	for (std::vector<Token>::const_iterator it = tokens.begin() + 1;
+	     it != tokens.end(); ++it) {
+		bool exists = false;
+		for (std::vector<std::string>::const_iterator sit =
+		         _serverNames.begin();
+		     sit != _serverNames.end(); ++sit) {
+			if (*sit == it->value) {
+				exists = true;
+				break;
+			}
+		}
+		if (!exists) {
+			_serverNames.push_back(it->value);
+		}
+	}
+}
+
+void ServerConfig::handleClientMaxBodySize(const std::vector<Token>& tokens) {
+	assertArgs(tokens, 1);
+	_clientMaxBodySize = Utils::parseSize(tokens[1].value);
+}
+
+void ServerConfig::handleRoot(const std::vector<Token>& tokens) {
+	assertArgs(tokens, 1);
+	_root = tokens[1].value;
+}
+
+void ServerConfig::handleIndex(const std::vector<Token>& tokens) {
+	assertArgs(tokens, 1);
+	_index = tokens[1].value;
+}
+
+void ServerConfig::handleErrorPage(const std::vector<Token>& tokens) {
+	assertMinArgs(tokens, 2);
+	std::string uri = tokens.back().value;
+	for (std::vector<Token>::const_iterator it = tokens.begin() + 1;
+	     it != tokens.end() - 1; ++it) {
+		int code = Utils::toInt(it->value);
+		if (code < 300 || code > 599) {
+			throw std::runtime_error("Invalid HTTP error code '" + it->value +
+			                         "' on line " +
+			                         Utils::toString(tokens[0].line));
+		}
+		_errorPages[code] = uri;
+	}
 }

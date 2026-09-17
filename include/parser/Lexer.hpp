@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 00:32:00 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/16 00:46:36 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/17 23:47:52 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,14 +16,11 @@
 #include <string>
 #include <vector>
 
-enum TokenType { TOKEN_WORD, TOKEN_LBRACE, TOKEN_RBRACE, TOKEN_SEMICOLON };
-
 struct Token {
-	TokenType type;
 	std::string value;
 	size_t line;
 
-	Token(TokenType t, const std::string& val, size_t l);
+	Token(const std::string& val, size_t l);
 };
 
 class Lexer {
@@ -33,7 +30,7 @@ public:
 	Lexer& operator=(const Lexer& other);
 	~Lexer();
 
-	std::vector<Token> tokenize(const std::string& content);
+	static std::vector<Token> tokenize(const std::string& content);
 };
 
 #endif
