@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 00:20:00 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 20:42:10 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 21:09:25 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ public:
 
 	const std::string& getHost() const;
 	int getPort() const;
+	std::string getEndpoint() const;
 	const std::vector<std::string>& getServerNames() const;
 	size_t getClientMaxBodySize() const;
 	const std::string& getRoot() const;

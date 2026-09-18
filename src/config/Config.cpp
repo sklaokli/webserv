@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 15:42:28 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 20:04:30 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 21:09:25 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 #include "parser/Parser.hpp"
 #include "utils/Logger.hpp"
 #include "utils/Utils.hpp"
+#include <set>
 #include <stdexcept>
 
 Config::Config() : _path(""), _servers() {}
@@ -86,23 +87,13 @@ void Config::dump() const {
 }
 
 void Config::validate() {
-	std::vector<std::string> seenEndpoints;
+	std::set<std::string> seenEndpoints;
 
 	for (std::vector<ServerConfig>::iterator sit = _servers.begin();
 	     sit != _servers.end(); ++sit) {
-		std::string endpoint =
-		    sit->getHost() + ":" + Utils::toString(sit->getPort());
+		std::string endpoint = sit->getEndpoint();
 
-		bool firstForEndpoint = true;
-		for (size_t i = 0; i < seenEndpoints.size(); ++i) {
-			if (seenEndpoints[i] == endpoint) {
-				firstForEndpoint = false;
-				break;
-			}
-		}
-
-		if (firstForEndpoint) {
-			seenEndpoints.push_back(endpoint);
+		if (seenEndpoints.insert(endpoint).second) {
 			sit->setDefault(true);
 		}
 
@@ -119,17 +110,23 @@ void Config::validate() {
 	}
 
 	for (size_t i = 0; i < _servers.size(); ++i) {
-		std::string ep1 = _servers[i].getHost() + ":" +
-		                  Utils::toString(_servers[i].getPort());
+		std::string ep1 = _servers[i].getEndpoint();
 		const std::vector<std::string>& names1 = _servers[i].getServerNames();
 
 		for (size_t j = i + 1; j < _servers.size(); ++j) {
-			std::string ep2 = _servers[j].getHost() + ":" +
-			                  Utils::toString(_servers[j].getPort());
+			std::string ep2 = _servers[j].getEndpoint();
 			if (ep1 != ep2) continue;
 
 			const std::vector<std::string>& names2 =
 			    _servers[j].getServerNames();
+
+			if (names1.empty() && names2.empty()) {
+				throw std::runtime_error(
+				    "Conflicting default server (duplicate unnamed server) "
+				    "on " +
+				    ep1);
+			}
+
 			for (size_t n1 = 0; n1 < names1.size(); ++n1) {
 				for (size_t n2 = 0; n2 < names2.size(); ++n2) {
 					if (names1[n1] == names2[n2]) {

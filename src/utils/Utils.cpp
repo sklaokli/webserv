@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 02:59:34 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 20:40:09 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 21:09:25 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,13 @@
 #include <cctype>
 #include <fstream>
 #include <stdexcept>
+#include <sys/stat.h>
 
 std::string Utils::readFile(const std::string& path) {
+	struct stat st;
+	if (stat(path.c_str(), &st) == 0 && S_ISDIR(st.st_mode)) {
+		throw std::runtime_error("Path is a directory: " + path);
+	}
 	std::ifstream file(path.c_str());
 	if (!file.is_open()) {
 		throw std::runtime_error("Unable to open file: " + path);
@@ -23,6 +28,30 @@ std::string Utils::readFile(const std::string& path) {
 	std::ostringstream ss;
 	ss << file.rdbuf();
 	return ss.str();
+}
+
+std::string Utils::normalizePath(const std::string& path) {
+	if (path.empty()) return "/";
+	std::string res;
+	for (size_t i = 0; i < path.length(); ++i) {
+		if (path[i] == '/' && !res.empty() && res[res.length() - 1] == '/')
+			continue;
+		res += path[i];
+	}
+	if (res.length() > 1 && res[res.length() - 1] == '/')
+		res.erase(res.length() - 1);
+	return res;
+}
+
+std::string Utils::join(
+    const std::vector<std::string>& vec, const std::string& delim) {
+	std::string res;
+	for (std::vector<std::string>::const_iterator it = vec.begin();
+	     it != vec.end(); ++it) {
+		if (it != vec.begin()) res += delim;
+		res += *it;
+	}
+	return res;
 }
 
 int Utils::toInt(const std::string& str) {

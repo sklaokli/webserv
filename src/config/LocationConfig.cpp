@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 00:20:00 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 20:56:23 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 21:09:25 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,7 @@
 #include "config/ServerConfig.hpp"
 #include "utils/Logger.hpp"
 #include "utils/Utils.hpp"
+#include <algorithm>
 #include <stdexcept>
 
 LocationConfig::LocationConfig()
@@ -31,7 +32,7 @@ LocationConfig::LocationConfig()
     , _configuredDirectives() {}
 
 LocationConfig::LocationConfig(const std::string& path)
-    : _path(path)
+    : _path(Utils::normalizePath(path))
     , _allowedMethods()
     , _root("")
     , _index("")
@@ -123,13 +124,14 @@ size_t LocationConfig::getClientMaxBodySize() const {
 }
 
 void LocationConfig::inherit(const ServerConfig& server) {
-	if (_root.empty()) {
+	if (_configuredDirectives.find("root") == _configuredDirectives.end()) {
 		_root = server.getRoot();
 	}
-	if (_index.empty()) {
+	if (_configuredDirectives.find("index") == _configuredDirectives.end()) {
 		_index = server.getIndex();
 	}
-	if (_clientMaxBodySize == 0) {
+	if (_configuredDirectives.find("client_max_body_size") ==
+	    _configuredDirectives.end()) {
 		_clientMaxBodySize = server.getClientMaxBodySize();
 	}
 	if (_allowedMethods.empty()) {
@@ -139,12 +141,7 @@ void LocationConfig::inherit(const ServerConfig& server) {
 
 void LocationConfig::dump(size_t serverBodySize) const {
 	Logger::debug("    Location: " + _path);
-	std::string methods = "";
-	for (std::vector<std::string>::const_iterator it = _allowedMethods.begin();
-	     it != _allowedMethods.end(); ++it) {
-		if (it != _allowedMethods.begin()) methods += ", ";
-		methods += *it;
-	}
+	std::string methods = Utils::join(_allowedMethods, ", ");
 	Logger::debug("      Allowed Methods: [" + methods + "]");
 	Logger::debug("      Root: " + _root);
 	Logger::debug("      Index: " + _index);
@@ -174,11 +171,8 @@ bool LocationConfig::isMethodAllowed(const std::string& method) const {
 	if (_allowedMethods.empty()) {
 		return method == "GET";
 	}
-	for (std::vector<std::string>::const_iterator it = _allowedMethods.begin();
-	     it != _allowedMethods.end(); ++it) {
-		if (*it == method) return true;
-	}
-	return false;
+	return std::find(_allowedMethods.begin(), _allowedMethods.end(), method) !=
+	       _allowedMethods.end();
 }
 
 bool LocationConfig::hasRedirect() const {
@@ -186,7 +180,7 @@ bool LocationConfig::hasRedirect() const {
 }
 
 bool LocationConfig::hasCgi(const std::string& ext) const {
-	return _cgiExt.find(ext) != _cgiExt.end();
+	return !getCgiHandler(ext).empty();
 }
 
 std::string LocationConfig::getCgiHandler(const std::string& ext) const {
@@ -243,16 +237,8 @@ void LocationConfig::handleAllowMethods(const std::vector<Token>& tokens) {
 			                         "' on line " +
 			                         Utils::toString(tokens[0].line));
 		}
-		bool exists = false;
-		for (std::vector<std::string>::const_iterator mit =
-		         _allowedMethods.begin();
-		     mit != _allowedMethods.end(); ++mit) {
-			if (*mit == it->value) {
-				exists = true;
-				break;
-			}
-		}
-		if (!exists) {
+		if (std::find(_allowedMethods.begin(), _allowedMethods.end(),
+		        it->value) == _allowedMethods.end()) {
 			_allowedMethods.push_back(it->value);
 		}
 	}
@@ -325,6 +311,11 @@ void LocationConfig::handleCgiExt(const std::vector<Token>& tokens) {
 	}
 	if (ext[0] != '.') {
 		ext = "." + ext;
+	}
+	if (_cgiExt.find(ext) != _cgiExt.end()) {
+		throw std::runtime_error("Duplicate CGI extension '" + ext +
+		                         "' on line " +
+		                         Utils::toString(tokens[0].line));
 	}
 	_cgiExt[ext] = tokens[2].value;
 }

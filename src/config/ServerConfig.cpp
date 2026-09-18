@@ -6,13 +6,14 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 00:20:00 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 20:56:23 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 21:09:25 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "config/ServerConfig.hpp"
 #include "utils/Logger.hpp"
 #include "utils/Utils.hpp"
+#include <algorithm>
 #include <cstddef>
 #include <stdexcept>
 
@@ -64,6 +65,10 @@ const std::string& ServerConfig::getHost() const {
 
 int ServerConfig::getPort() const {
 	return _port;
+}
+
+std::string ServerConfig::getEndpoint() const {
+	return _host + ":" + Utils::toString(_port);
 }
 
 const std::vector<std::string>& ServerConfig::getServerNames() const {
@@ -118,12 +123,7 @@ void ServerConfig::dump(size_t index) const {
 	Logger::debug("[Server " + Utils::toString(index) + "] " + _host + ":" +
 	              Utils::toString(_port) + (_isDefault ? " (default)" : ""));
 
-	std::string names = "";
-	for (std::vector<std::string>::const_iterator it = _serverNames.begin();
-	     it != _serverNames.end(); ++it) {
-		if (it != _serverNames.begin()) names += ", ";
-		names += *it;
-	}
+	std::string names = Utils::join(_serverNames, ", ");
 	Logger::debug("  Server Names: [" + names + "]");
 	Logger::debug("  Client Max Body Size: " +
 	              Utils::toString(_clientMaxBodySize) + " bytes");
@@ -177,21 +177,14 @@ std::string ServerConfig::getErrorPage(int code) const {
 	return "";
 }
 
-static std::string normalizePath(const std::string& p) {
-	if (p.length() > 1 && p[p.length() - 1] == '/') {
-		return p.substr(0, p.length() - 1);
-	}
-	return p;
-}
-
 const LocationConfig* ServerConfig::findLocation(const std::string& uri) const {
 	const LocationConfig* bestMatch = NULL;
 	size_t longestMatchLen = 0;
-	std::string normUri = normalizePath(uri);
+	std::string normUri = Utils::normalizePath(uri);
 
 	for (std::vector<LocationConfig>::const_iterator it = _locations.begin();
 	     it != _locations.end(); ++it) {
-		std::string normLoc = normalizePath(it->getPath());
+		std::string normLoc = it->getPath();
 		if (normUri == normLoc) {
 			if (normLoc.length() >= longestMatchLen) {
 				longestMatchLen = normLoc.length();
@@ -268,6 +261,9 @@ void ServerConfig::handleListen(const std::vector<Token>& tokens) {
 		throw std::runtime_error("Invalid host '" + _host + "' on line " +
 		                         Utils::toString(tokens[0].line));
 	}
+	if (_host == "localhost") {
+		_host = "127.0.0.1";
+	}
 	int port = Utils::toInt(portStr);
 	if (!Utils::isValidPort(port)) {
 		throw std::runtime_error("Invalid port '" + portStr + "' on line " +
@@ -284,22 +280,17 @@ void ServerConfig::handleHost(const std::vector<Token>& tokens) {
 		                         Utils::toString(tokens[0].line));
 	}
 	_host = tokens[1].value;
+	if (_host == "localhost") {
+		_host = "127.0.0.1";
+	}
 }
 
 void ServerConfig::handleServerName(const std::vector<Token>& tokens) {
 	Utils::assertMinArgs(tokens, 1);
 	for (std::vector<Token>::const_iterator it = tokens.begin() + 1;
 	     it != tokens.end(); ++it) {
-		bool exists = false;
-		for (std::vector<std::string>::const_iterator sit =
-		         _serverNames.begin();
-		     sit != _serverNames.end(); ++sit) {
-			if (*sit == it->value) {
-				exists = true;
-				break;
-			}
-		}
-		if (!exists) {
+		if (std::find(_serverNames.begin(), _serverNames.end(), it->value) ==
+		    _serverNames.end()) {
 			_serverNames.push_back(it->value);
 		}
 	}

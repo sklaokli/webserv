@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 02:57:55 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 20:56:23 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 21:09:25 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,9 @@ public:
 		return oss.str();
 	}
 	static std::string readFile(const std::string&);
+	static std::string normalizePath(const std::string&);
+	static std::string join(
+	    const std::vector<std::string>&, const std::string&);
 	static int toInt(const std::string&);
 	static size_t parseSize(const std::string&);
 	static bool isValidHost(const std::string&);
