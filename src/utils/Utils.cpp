@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 02:59:34 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 20:12:14 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 20:40:09 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,11 @@ bool Utils::isValidHost(const std::string& host) {
 		}
 	}
 	return dots == 3;
+}
+
+bool Utils::isValidMethod(const std::string& method) {
+	return (method == "GET" || method == "POST" || method == "DELETE" ||
+	        method == "HEAD" || method == "PUT");
 }
 
 void Utils::assertArgs(const std::vector<Token>& tokens, size_t expected) {

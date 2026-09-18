@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 15:13:48 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 18:49:32 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 20:40:09 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,6 +82,10 @@ void Parser::parseLocation() {
 	}
 
 	std::string path = _it->value;
+	if (path.empty() || path[0] != '/') {
+		throw std::runtime_error("Location path must start with '/' on line " +
+		                         Utils::toString(_it->line));
+	}
 	++_it;
 
 	expect("{");

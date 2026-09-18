@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 00:20:00 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 19:00:29 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 20:42:10 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,7 @@
 
 #include "parser/Lexer.hpp"
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -53,6 +54,8 @@ public:
 	std::string getCgiHandler(const std::string&) const;
 
 private:
+	static bool isSingleDirective(const std::string&);
+
 	void handleAllowMethods(const std::vector<Token>&);
 	void handleRoot(const std::vector<Token>&);
 	void handleIndex(const std::vector<Token>&);
@@ -74,6 +77,7 @@ private:
 	std::string _uploadStore;
 	CgiMap _cgiExt;
 	size_t _clientMaxBodySize;
+	std::set<std::string> _configuredDirectives;
 };
 
 #endif

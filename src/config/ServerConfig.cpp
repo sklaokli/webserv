@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 00:20:00 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 20:12:14 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 20:42:10 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,7 +25,8 @@ ServerConfig::ServerConfig()
     , _index("index.html")
     , _errorPages()
     , _locations()
-    , _isDefault(false) {}
+    , _isDefault(false)
+    , _configuredDirectives() {}
 
 ServerConfig::ServerConfig(const ServerConfig& other)
     : _host(other._host)
@@ -36,7 +37,8 @@ ServerConfig::ServerConfig(const ServerConfig& other)
     , _index(other._index)
     , _errorPages(other._errorPages)
     , _locations(other._locations)
-    , _isDefault(other._isDefault) {}
+    , _isDefault(other._isDefault)
+    , _configuredDirectives(other._configuredDirectives) {}
 
 ServerConfig& ServerConfig::operator=(const ServerConfig& other) {
 	if (this != &other) {
@@ -49,6 +51,7 @@ ServerConfig& ServerConfig::operator=(const ServerConfig& other) {
 		_errorPages = other._errorPages;
 		_locations = other._locations;
 		_isDefault = other._isDefault;
+		_configuredDirectives = other._configuredDirectives;
 	}
 	return *this;
 }
@@ -212,8 +215,18 @@ const LocationConfig* ServerConfig::findLocation(const std::string& uri) const {
 	return bestMatch;
 }
 
+bool ServerConfig::isSingleDirective(const std::string& name) {
+	return (name == "listen" || name == "host" ||
+	        name == "client_max_body_size" || name == "root" ||
+	        name == "index");
+}
+
 void ServerConfig::applyDirective(const std::vector<Token>& tokens) {
 	const std::string& name = tokens[0].value;
+	if (isSingleDirective(name) && !_configuredDirectives.insert(name).second) {
+		throw std::runtime_error("Duplicate directive '" + name + "' on line " +
+		                         Utils::toString(tokens[0].line));
+	}
 	if (name == "listen")
 		handleListen(tokens);
 	else if (name == "host")

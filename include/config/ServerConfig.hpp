@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 00:20:00 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 19:00:29 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 20:42:10 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "config/LocationConfig.hpp"
 #include "parser/Lexer.hpp"
 #include <map>
+#include <set>
 #include <string>
 #include <vector>
 
@@ -49,6 +50,8 @@ public:
 	void setDefault(bool);
 
 private:
+	static bool isSingleDirective(const std::string&);
+
 	void handleListen(const std::vector<Token>&);
 	void handleHost(const std::vector<Token>&);
 	void handleServerName(const std::vector<Token>&);
@@ -66,6 +69,7 @@ private:
 	ErrorPageMap _errorPages;
 	std::vector<LocationConfig> _locations;
 	bool _isDefault;
+	std::set<std::string> _configuredDirectives;
 };
 
 #endif

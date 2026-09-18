@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 00:20:00 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 20:12:14 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 20:42:10 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,8 @@ LocationConfig::LocationConfig()
     , _uploadEnable(false)
     , _uploadStore("")
     , _cgiExt()
-    , _clientMaxBodySize(0) {}
+    , _clientMaxBodySize(0)
+    , _configuredDirectives() {}
 
 LocationConfig::LocationConfig(const std::string& path)
     : _path(path)
@@ -40,7 +41,8 @@ LocationConfig::LocationConfig(const std::string& path)
     , _uploadEnable(false)
     , _uploadStore("")
     , _cgiExt()
-    , _clientMaxBodySize(0) {}
+    , _clientMaxBodySize(0)
+    , _configuredDirectives() {}
 
 LocationConfig::LocationConfig(const LocationConfig& other)
     : _path(other._path)
@@ -53,7 +55,8 @@ LocationConfig::LocationConfig(const LocationConfig& other)
     , _uploadEnable(other._uploadEnable)
     , _uploadStore(other._uploadStore)
     , _cgiExt(other._cgiExt)
-    , _clientMaxBodySize(other._clientMaxBodySize) {}
+    , _clientMaxBodySize(other._clientMaxBodySize)
+    , _configuredDirectives(other._configuredDirectives) {}
 
 LocationConfig& LocationConfig::operator=(const LocationConfig& other) {
 	if (this != &other) {
@@ -68,6 +71,7 @@ LocationConfig& LocationConfig::operator=(const LocationConfig& other) {
 		_uploadStore = other._uploadStore;
 		_cgiExt = other._cgiExt;
 		_clientMaxBodySize = other._clientMaxBodySize;
+		_configuredDirectives = other._configuredDirectives;
 	}
 	return *this;
 }
@@ -193,8 +197,19 @@ std::string LocationConfig::getCgiHandler(const std::string& ext) const {
 	return "";
 }
 
+bool LocationConfig::isSingleDirective(const std::string& name) {
+	return (name == "allow_methods" || name == "root" || name == "index" ||
+	        name == "autoindex" || name == "return" ||
+	        name == "client_max_body_size" || name == "upload_enable" ||
+	        name == "upload_store");
+}
+
 void LocationConfig::applyDirective(const std::vector<Token>& tokens) {
 	const std::string& name = tokens[0].value;
+	if (isSingleDirective(name) && !_configuredDirectives.insert(name).second) {
+		throw std::runtime_error("Duplicate directive '" + name + "' on line " +
+		                         Utils::toString(tokens[0].line));
+	}
 	if (name == "allow_methods")
 		handleAllowMethods(tokens);
 	else if (name == "root")
@@ -223,6 +238,11 @@ void LocationConfig::handleAllowMethods(const std::vector<Token>& tokens) {
 	Utils::assertMinArgs(tokens, 1);
 	for (std::vector<Token>::const_iterator it = tokens.begin() + 1;
 	     it != tokens.end(); ++it) {
+		if (!Utils::isValidMethod(it->value)) {
+			throw std::runtime_error("Invalid HTTP method '" + it->value +
+			                         "' on line " +
+			                         Utils::toString(tokens[0].line));
+		}
 		bool exists = false;
 		for (std::vector<std::string>::const_iterator mit =
 		         _allowedMethods.begin();
@@ -261,7 +281,13 @@ void LocationConfig::handleAutoindex(const std::vector<Token>& tokens) {
 void LocationConfig::handleReturn(const std::vector<Token>& tokens) {
 	Utils::assertArgs(tokens, 1, 2);
 	if (tokens.size() == 3) {
-		_redirectCode = Utils::toInt(tokens[1].value);
+		int code = Utils::toInt(tokens[1].value);
+		if (code < 300 || code > 399) {
+			throw std::runtime_error("Invalid redirect status code '" +
+			                         tokens[1].value + "' on line " +
+			                         Utils::toString(tokens[0].line));
+		}
+		_redirectCode = code;
 		_redirectUrl = tokens[2].value;
 	} else {
 		_redirectCode = 302;
@@ -291,5 +317,14 @@ void LocationConfig::handleUploadStore(const std::vector<Token>& tokens) {
 
 void LocationConfig::handleCgiExt(const std::vector<Token>& tokens) {
 	Utils::assertArgs(tokens, 2);
-	_cgiExt[tokens[1].value] = tokens[2].value;
+	std::string ext = tokens[1].value;
+	if (ext.empty() || ext == ".") {
+		throw std::runtime_error("Invalid CGI extension '" + ext +
+		                         "' on line " +
+		                         Utils::toString(tokens[0].line));
+	}
+	if (ext[0] != '.') {
+		ext = "." + ext;
+	}
+	_cgiExt[ext] = tokens[2].value;
 }
