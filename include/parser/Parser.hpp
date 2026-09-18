@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 01:22:10 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 00:04:19 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 19:00:29 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,13 +21,12 @@
 
 class Parser {
 public:
-	Parser(const std::vector<Token>& tokens);
-	Parser(const Parser& other);
-	Parser& operator=(const Parser& other);
+	explicit Parser(const std::vector<Token>&);
+	Parser(const Parser&);
+	Parser& operator=(const Parser&);
 	~Parser();
 
-	void parseServer(
-	    ServerConfig& server, std::vector<Token>::const_iterator& it);
+	void parseServer(ServerConfig&, std::vector<Token>::const_iterator&);
 
 private:
 	std::vector<Token>::const_iterator _it;
@@ -38,7 +37,7 @@ private:
 	std::vector<Token> _directiveTokens;
 
 	Parser();
-	void expect(const std::string& expected);
+	void expect(const std::string&);
 	void parseLocation();
 	void readDirective();
 

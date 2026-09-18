@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 11:51:46 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 00:13:30 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 19:59:23 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,6 +60,6 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
-	Logger::info("Webserv stopped");
+	Logger::info("Stopping webserv...");
 	return 0;
 }

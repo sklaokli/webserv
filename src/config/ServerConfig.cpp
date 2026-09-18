@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 00:20:00 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 00:12:31 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 20:12:14 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,9 +111,9 @@ typedef std::pair<std::string, std::vector<int> > ErrorGroup;
 typedef std::vector<ErrorGroup> ErrorGroups;
 
 void ServerConfig::dump(size_t index) const {
-	Logger::info("");
-	Logger::info("[Server " + Utils::toString(index) + "] " + _host + ":" +
-	             Utils::toString(_port) + (_isDefault ? " (default)" : ""));
+	Logger::debug("");
+	Logger::debug("[Server " + Utils::toString(index) + "] " + _host + ":" +
+	              Utils::toString(_port) + (_isDefault ? " (default)" : ""));
 
 	std::string names = "";
 	for (std::vector<std::string>::const_iterator it = _serverNames.begin();
@@ -121,14 +121,14 @@ void ServerConfig::dump(size_t index) const {
 		if (it != _serverNames.begin()) names += ", ";
 		names += *it;
 	}
-	Logger::info("  Server Names: [" + names + "]");
-	Logger::info("  Client Max Body Size: " +
-	             Utils::toString(_clientMaxBodySize) + " bytes");
-	Logger::info("  Root: " + _root);
-	Logger::info("  Index: " + _index);
+	Logger::debug("  Server Names: [" + names + "]");
+	Logger::debug("  Client Max Body Size: " +
+	              Utils::toString(_clientMaxBodySize) + " bytes");
+	Logger::debug("  Root: " + _root);
+	Logger::debug("  Index: " + _index);
 
 	if (!_errorPages.empty()) {
-		Logger::info("  Error Pages:");
+		Logger::debug("  Error Pages:");
 		ErrorGroups grouped;
 		for (ErrorPageMap::const_iterator it = _errorPages.begin();
 		     it != _errorPages.end(); ++it) {
@@ -155,11 +155,11 @@ void ServerConfig::dump(size_t index) const {
 				if (cit != git->second.begin()) codesStr += ", ";
 				codesStr += Utils::toString(*cit);
 			}
-			Logger::info("    [" + codesStr + "] -> " + git->first);
+			Logger::debug("    [" + codesStr + "] -> " + git->first);
 		}
 	}
 
-	Logger::info("  Locations (" + Utils::toString(_locations.size()) + "):");
+	Logger::debug("  Locations (" + Utils::toString(_locations.size()) + "):");
 	for (std::vector<LocationConfig>::const_iterator it = _locations.begin();
 	     it != _locations.end(); ++it) {
 		it->dump(_clientMaxBodySize);
@@ -212,26 +212,6 @@ const LocationConfig* ServerConfig::findLocation(const std::string& uri) const {
 	return bestMatch;
 }
 
-static void assertArgs(const std::vector<Token>& tokens, size_t expected) {
-	if (tokens.size() - 1 != expected) {
-		throw std::runtime_error("Directive '" + tokens[0].value +
-		                         "' requires " + Utils::toString(expected) +
-		                         (expected == 1 ? " argument" : " arguments") +
-		                         " on line " + Utils::toString(tokens[0].line));
-	}
-}
-
-static void assertMinArgs(
-    const std::vector<Token>& tokens, size_t minExpected) {
-	if (tokens.size() - 1 < minExpected) {
-		throw std::runtime_error(
-		    "Directive '" + tokens[0].value + "' requires at least " +
-		    Utils::toString(minExpected) +
-		    (minExpected == 1 ? " argument" : " arguments") + " on line " +
-		    Utils::toString(tokens[0].line));
-	}
-}
-
 void ServerConfig::applyDirective(const std::vector<Token>& tokens) {
 	const std::string& name = tokens[0].value;
 	if (name == "listen")
@@ -254,7 +234,7 @@ void ServerConfig::applyDirective(const std::vector<Token>& tokens) {
 }
 
 void ServerConfig::handleListen(const std::vector<Token>& tokens) {
-	assertArgs(tokens, 1);
+	Utils::assertArgs(tokens, 1);
 	std::string arg = tokens[1].value;
 	size_t colon = arg.find(':');
 	std::string portStr = arg;
@@ -284,7 +264,7 @@ void ServerConfig::handleListen(const std::vector<Token>& tokens) {
 }
 
 void ServerConfig::handleHost(const std::vector<Token>& tokens) {
-	assertArgs(tokens, 1);
+	Utils::assertArgs(tokens, 1);
 	if (!Utils::isValidHost(tokens[1].value)) {
 		throw std::runtime_error("Invalid host '" + tokens[1].value +
 		                         "' on line " +
@@ -294,7 +274,7 @@ void ServerConfig::handleHost(const std::vector<Token>& tokens) {
 }
 
 void ServerConfig::handleServerName(const std::vector<Token>& tokens) {
-	assertMinArgs(tokens, 1);
+	Utils::assertMinArgs(tokens, 1);
 	for (std::vector<Token>::const_iterator it = tokens.begin() + 1;
 	     it != tokens.end(); ++it) {
 		bool exists = false;
@@ -313,22 +293,22 @@ void ServerConfig::handleServerName(const std::vector<Token>& tokens) {
 }
 
 void ServerConfig::handleClientMaxBodySize(const std::vector<Token>& tokens) {
-	assertArgs(tokens, 1);
+	Utils::assertArgs(tokens, 1);
 	_clientMaxBodySize = Utils::parseSize(tokens[1].value);
 }
 
 void ServerConfig::handleRoot(const std::vector<Token>& tokens) {
-	assertArgs(tokens, 1);
+	Utils::assertArgs(tokens, 1);
 	_root = tokens[1].value;
 }
 
 void ServerConfig::handleIndex(const std::vector<Token>& tokens) {
-	assertArgs(tokens, 1);
+	Utils::assertArgs(tokens, 1);
 	_index = tokens[1].value;
 }
 
 void ServerConfig::handleErrorPage(const std::vector<Token>& tokens) {
-	assertMinArgs(tokens, 2);
+	Utils::assertMinArgs(tokens, 2);
 	std::string uri = tokens.back().value;
 	for (std::vector<Token>::const_iterator it = tokens.begin() + 1;
 	     it != tokens.end() - 1; ++it) {

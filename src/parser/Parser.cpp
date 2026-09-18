@@ -6,21 +6,13 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 15:13:48 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 00:19:18 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 18:49:32 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "parser/Parser.hpp"
-#include "utils/Logger.hpp"
 #include "utils/Utils.hpp"
-#include <sstream>
 #include <stdexcept>
-
-static std::string formatLine(size_t line) {
-	std::ostringstream oss;
-	oss << "(L" << (line < 10 ? "0" : "") << line << ") ";
-	return oss.str();
-}
 
 Parser::Parser(const std::vector<Token>& tokens)
     : _it(tokens.begin())
@@ -58,10 +50,7 @@ void Parser::parseServer(
 		throw std::runtime_error(
 		    "Reached end of file while expecting 'server'");
 	}
-	size_t line = _it->line;
 	expect("server");
-	Logger::debug(formatLine(line) + "Block: 'server'");
-
 	expect("{");
 
 	while (_it != _end && _it->value != "}") {
@@ -95,9 +84,6 @@ void Parser::parseLocation() {
 	std::string path = _it->value;
 	++_it;
 
-	Logger::debug(
-	    formatLine(line) + "  Block: 'location' path: \"" + path + "\"");
-
 	expect("{");
 
 	_curLoc = &_curServer->addLocation(path);
@@ -117,7 +103,6 @@ void Parser::readDirective() {
 		throw std::runtime_error("Unexpected EOF while reading directive");
 	}
 	size_t line = _it->line;
-	std::string name = _it->value;
 	_directiveTokens.push_back(*_it);
 	++_it;
 
@@ -135,18 +120,6 @@ void Parser::readDirective() {
 	}
 
 	expect(";");
-
-	std::string argsSummary = "[";
-	for (std::vector<Token>::const_iterator it = _directiveTokens.begin() + 1;
-	     it != _directiveTokens.end(); ++it) {
-		if (it != _directiveTokens.begin() + 1) argsSummary += ", ";
-		argsSummary += "\"" + it->value + "\"";
-	}
-	argsSummary += "]";
-
-	std::string indent = (_curLoc != NULL ? "    " : "  ");
-	Logger::debug(formatLine(line) + indent + "Directive: '" + name + "' -> " +
-	              argsSummary);
 }
 
 void Parser::parseServerDirective() {

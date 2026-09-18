@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 00:20:00 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/17 23:47:52 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 20:12:14 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,34 +134,34 @@ void LocationConfig::inherit(const ServerConfig& server) {
 }
 
 void LocationConfig::dump(size_t serverBodySize) const {
-	Logger::info("    Location: " + _path);
+	Logger::debug("    Location: " + _path);
 	std::string methods = "";
 	for (std::vector<std::string>::const_iterator it = _allowedMethods.begin();
 	     it != _allowedMethods.end(); ++it) {
 		if (it != _allowedMethods.begin()) methods += ", ";
 		methods += *it;
 	}
-	Logger::info("      Allowed Methods: [" + methods + "]");
-	Logger::info("      Root: " + _root);
-	Logger::info("      Index: " + _index);
-	Logger::info("      Autoindex: " + std::string(_autoindex ? "on" : "off"));
+	Logger::debug("      Allowed Methods: [" + methods + "]");
+	Logger::debug("      Root: " + _root);
+	Logger::debug("      Index: " + _index);
+	Logger::debug("      Autoindex: " + std::string(_autoindex ? "on" : "off"));
 	if ((serverBodySize == 0 && _clientMaxBodySize != 0) ||
 	    (serverBodySize != 0 && _clientMaxBodySize != serverBodySize)) {
-		Logger::info("      Client Max Body Size: " +
-		             Utils::toString(_clientMaxBodySize) + " bytes");
+		Logger::debug("      Client Max Body Size: " +
+		              Utils::toString(_clientMaxBodySize) + " bytes");
 	}
 	if (hasRedirect()) {
-		Logger::info("      Redirect: " + Utils::toString(_redirectCode) +
-		             " -> " + _redirectUrl);
+		Logger::debug("      Redirect: " + Utils::toString(_redirectCode) +
+		              " -> " + _redirectUrl);
 	}
 	if (_uploadEnable) {
-		Logger::info("      Upload: enabled (store: " + _uploadStore + ")");
+		Logger::debug("      Upload: enabled (store: " + _uploadStore + ")");
 	}
 	if (!_cgiExt.empty()) {
-		Logger::info("      CGI Handlers:");
+		Logger::debug("      CGI Handlers:");
 		for (CgiMap::const_iterator it = _cgiExt.begin(); it != _cgiExt.end();
 		     ++it) {
-			Logger::info("        " + it->first + " -> " + it->second);
+			Logger::debug("        " + it->first + " -> " + it->second);
 		}
 	}
 }
@@ -193,26 +193,6 @@ std::string LocationConfig::getCgiHandler(const std::string& ext) const {
 	return "";
 }
 
-static void assertArgs(const std::vector<Token>& tokens, size_t expected) {
-	if (tokens.size() - 1 != expected) {
-		throw std::runtime_error("Directive '" + tokens[0].value +
-		                         "' requires " + Utils::toString(expected) +
-		                         (expected == 1 ? " argument" : " arguments") +
-		                         " on line " + Utils::toString(tokens[0].line));
-	}
-}
-
-static void assertMinArgs(
-    const std::vector<Token>& tokens, size_t minExpected) {
-	if (tokens.size() - 1 < minExpected) {
-		throw std::runtime_error(
-		    "Directive '" + tokens[0].value + "' requires at least " +
-		    Utils::toString(minExpected) +
-		    (minExpected == 1 ? " argument" : " arguments") + " on line " +
-		    Utils::toString(tokens[0].line));
-	}
-}
-
 void LocationConfig::applyDirective(const std::vector<Token>& tokens) {
 	const std::string& name = tokens[0].value;
 	if (name == "allow_methods")
@@ -240,7 +220,7 @@ void LocationConfig::applyDirective(const std::vector<Token>& tokens) {
 }
 
 void LocationConfig::handleAllowMethods(const std::vector<Token>& tokens) {
-	assertMinArgs(tokens, 1);
+	Utils::assertMinArgs(tokens, 1);
 	for (std::vector<Token>::const_iterator it = tokens.begin() + 1;
 	     it != tokens.end(); ++it) {
 		bool exists = false;
@@ -259,17 +239,17 @@ void LocationConfig::handleAllowMethods(const std::vector<Token>& tokens) {
 }
 
 void LocationConfig::handleRoot(const std::vector<Token>& tokens) {
-	assertArgs(tokens, 1);
+	Utils::assertArgs(tokens, 1);
 	_root = tokens[1].value;
 }
 
 void LocationConfig::handleIndex(const std::vector<Token>& tokens) {
-	assertArgs(tokens, 1);
+	Utils::assertArgs(tokens, 1);
 	_index = tokens[1].value;
 }
 
 void LocationConfig::handleAutoindex(const std::vector<Token>& tokens) {
-	assertArgs(tokens, 1);
+	Utils::assertArgs(tokens, 1);
 	if (tokens[1].value != "on" && tokens[1].value != "off") {
 		throw std::runtime_error(
 		    "Directive 'autoindex' must be 'on' or 'off' on line " +
@@ -279,26 +259,23 @@ void LocationConfig::handleAutoindex(const std::vector<Token>& tokens) {
 }
 
 void LocationConfig::handleReturn(const std::vector<Token>& tokens) {
+	Utils::assertArgs(tokens, 1, 2);
 	if (tokens.size() == 3) {
 		_redirectCode = Utils::toInt(tokens[1].value);
 		_redirectUrl = tokens[2].value;
-	} else if (tokens.size() == 2) {
+	} else {
 		_redirectCode = 302;
 		_redirectUrl = tokens[1].value;
-	} else {
-		throw std::runtime_error(
-		    "Directive 'return' requires 1 or 2 arguments on line " +
-		    Utils::toString(tokens[0].line));
 	}
 }
 
 void LocationConfig::handleClientMaxBodySize(const std::vector<Token>& tokens) {
-	assertArgs(tokens, 1);
+	Utils::assertArgs(tokens, 1);
 	_clientMaxBodySize = Utils::parseSize(tokens[1].value);
 }
 
 void LocationConfig::handleUploadEnable(const std::vector<Token>& tokens) {
-	assertArgs(tokens, 1);
+	Utils::assertArgs(tokens, 1);
 	if (tokens[1].value != "on" && tokens[1].value != "off") {
 		throw std::runtime_error(
 		    "Directive 'upload_enable' must be 'on' or 'off' on line " +
@@ -308,11 +285,11 @@ void LocationConfig::handleUploadEnable(const std::vector<Token>& tokens) {
 }
 
 void LocationConfig::handleUploadStore(const std::vector<Token>& tokens) {
-	assertArgs(tokens, 1);
+	Utils::assertArgs(tokens, 1);
 	_uploadStore = tokens[1].value;
 }
 
 void LocationConfig::handleCgiExt(const std::vector<Token>& tokens) {
-	assertArgs(tokens, 2);
+	Utils::assertArgs(tokens, 2);
 	_cgiExt[tokens[1].value] = tokens[2].value;
 }

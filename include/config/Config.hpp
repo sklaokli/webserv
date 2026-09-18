@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 02:22:53 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 00:12:31 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 19:00:29 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,9 +20,9 @@
 class Config {
 public:
 	Config();
-	Config(const std::string& configPath);
-	Config(const Config& other);
-	Config& operator=(const Config& other);
+	explicit Config(const std::string&);
+	Config(const Config&);
+	Config& operator=(const Config&);
 	~Config();
 
 	void parse();

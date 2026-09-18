@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 15:42:28 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 00:12:31 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 20:04:30 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,9 @@ void Config::parse() {
 	}
 
 	validate();
+	Logger::info("Parsed configuration: " + _path);
+	Logger::info(
+	    "Loaded " + Utils::toString(_servers.size()) + " virtual server(s)");
 	dump();
 }
 
@@ -72,14 +75,14 @@ ServerConfig& Config::addServer() {
 }
 
 void Config::dump() const {
-	Logger::info("");
-	Logger::info("Total virtual servers: " + Utils::toString(_servers.size()));
+	Logger::debug("");
+	Logger::debug("Total virtual servers: " + Utils::toString(_servers.size()));
 	size_t i = 0;
 	for (std::vector<ServerConfig>::const_iterator it = _servers.begin();
 	     it != _servers.end(); ++it, ++i) {
 		it->dump(i);
 	}
-	Logger::info("");
+	Logger::debug("");
 }
 
 void Config::validate() {

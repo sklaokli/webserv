@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 00:32:00 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/17 23:47:52 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 19:00:29 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,17 +20,17 @@ struct Token {
 	std::string value;
 	size_t line;
 
-	Token(const std::string& val, size_t l);
+	Token(const std::string&, size_t);
 };
 
 class Lexer {
 public:
 	Lexer();
-	Lexer(const Lexer& other);
-	Lexer& operator=(const Lexer& other);
+	Lexer(const Lexer&);
+	Lexer& operator=(const Lexer&);
 	~Lexer();
 
-	static std::vector<Token> tokenize(const std::string& content);
+	static std::vector<Token> tokenize(const std::string&);
 };
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 00:20:00 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 00:12:31 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 19:00:29 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,15 +24,15 @@ public:
 	typedef std::map<int, std::string> ErrorPageMap;
 
 	ServerConfig();
-	ServerConfig(const ServerConfig& other);
-	ServerConfig& operator=(const ServerConfig& other);
+	ServerConfig(const ServerConfig&);
+	ServerConfig& operator=(const ServerConfig&);
 	~ServerConfig();
 
-	void applyDirective(const std::vector<Token>& tokens);
-	LocationConfig& addLocation(const std::string& path);
+	void applyDirective(const std::vector<Token>&);
+	LocationConfig& addLocation(const std::string&);
 	void finalize();
 
-	void dump(size_t index = 0) const;
+	void dump(size_t = 0) const;
 
 	const std::string& getHost() const;
 	int getPort() const;
@@ -43,19 +43,19 @@ public:
 	const ErrorPageMap& getErrorPages() const;
 	const std::vector<LocationConfig>& getLocations() const;
 
-	std::string getErrorPage(int code) const;
-	const LocationConfig* findLocation(const std::string& uri) const;
+	std::string getErrorPage(int) const;
+	const LocationConfig* findLocation(const std::string&) const;
 	bool isDefault() const;
-	void setDefault(bool isDefault);
+	void setDefault(bool);
 
 private:
-	void handleListen(const std::vector<Token>& tokens);
-	void handleHost(const std::vector<Token>& tokens);
-	void handleServerName(const std::vector<Token>& tokens);
-	void handleClientMaxBodySize(const std::vector<Token>& tokens);
-	void handleRoot(const std::vector<Token>& tokens);
-	void handleIndex(const std::vector<Token>& tokens);
-	void handleErrorPage(const std::vector<Token>& tokens);
+	void handleListen(const std::vector<Token>&);
+	void handleHost(const std::vector<Token>&);
+	void handleServerName(const std::vector<Token>&);
+	void handleClientMaxBodySize(const std::vector<Token>&);
+	void handleRoot(const std::vector<Token>&);
+	void handleIndex(const std::vector<Token>&);
+	void handleErrorPage(const std::vector<Token>&);
 
 	std::string _host;
 	int _port;

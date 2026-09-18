@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 00:20:00 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 00:06:43 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 19:00:29 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,15 +25,15 @@ public:
 	typedef std::map<std::string, std::string> CgiMap;
 
 	LocationConfig();
-	LocationConfig(const std::string& path);
-	LocationConfig(const LocationConfig& other);
-	LocationConfig& operator=(const LocationConfig& other);
+	explicit LocationConfig(const std::string&);
+	LocationConfig(const LocationConfig&);
+	LocationConfig& operator=(const LocationConfig&);
 	~LocationConfig();
 
-	void applyDirective(const std::vector<Token>& tokens);
-	void inherit(const ServerConfig& server);
+	void applyDirective(const std::vector<Token>&);
+	void inherit(const ServerConfig&);
 
-	void dump(size_t serverBodySize = 0) const;
+	void dump(size_t = 0) const;
 
 	const std::string& getPath() const;
 	const std::vector<std::string>& getAllowedMethods() const;
@@ -47,21 +47,21 @@ public:
 	const CgiMap& getCgiExt() const;
 	size_t getClientMaxBodySize() const;
 
-	bool isMethodAllowed(const std::string& method) const;
+	bool isMethodAllowed(const std::string&) const;
 	bool hasRedirect() const;
-	bool hasCgi(const std::string& ext) const;
-	std::string getCgiHandler(const std::string& ext) const;
+	bool hasCgi(const std::string&) const;
+	std::string getCgiHandler(const std::string&) const;
 
 private:
-	void handleAllowMethods(const std::vector<Token>& tokens);
-	void handleRoot(const std::vector<Token>& tokens);
-	void handleIndex(const std::vector<Token>& tokens);
-	void handleAutoindex(const std::vector<Token>& tokens);
-	void handleReturn(const std::vector<Token>& tokens);
-	void handleClientMaxBodySize(const std::vector<Token>& tokens);
-	void handleUploadEnable(const std::vector<Token>& tokens);
-	void handleUploadStore(const std::vector<Token>& tokens);
-	void handleCgiExt(const std::vector<Token>& tokens);
+	void handleAllowMethods(const std::vector<Token>&);
+	void handleRoot(const std::vector<Token>&);
+	void handleIndex(const std::vector<Token>&);
+	void handleAutoindex(const std::vector<Token>&);
+	void handleReturn(const std::vector<Token>&);
+	void handleClientMaxBodySize(const std::vector<Token>&);
+	void handleUploadEnable(const std::vector<Token>&);
+	void handleUploadStore(const std::vector<Token>&);
+	void handleCgiExt(const std::vector<Token>&);
 
 	std::string _path;
 	std::vector<std::string> _allowedMethods;

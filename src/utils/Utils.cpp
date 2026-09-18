@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 02:59:34 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 00:12:31 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 20:12:14 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,6 +113,55 @@ bool Utils::isValidHost(const std::string& host) {
 		}
 	}
 	return dots == 3;
+}
+
+void Utils::assertArgs(const std::vector<Token>& tokens, size_t expected) {
+	if (tokens.empty()) {
+		throw std::runtime_error("Empty directive tokens");
+	}
+	if (tokens.size() - 1 != expected) {
+		throw std::runtime_error("Directive '" + tokens[0].value +
+		                         "' requires " + Utils::toString(expected) +
+		                         (expected == 1 ? " argument" : " arguments") +
+		                         " on line " + Utils::toString(tokens[0].line));
+	}
+}
+
+void Utils::assertArgs(
+    const std::vector<Token>& tokens, size_t min, size_t max) {
+	if (tokens.empty()) {
+		throw std::runtime_error("Empty directive tokens");
+	}
+	size_t count = tokens.size() - 1;
+	if (count < min || count > max) {
+		std::string rangeStr;
+		if (min == max) {
+			rangeStr =
+			    Utils::toString(min) + (min == 1 ? " argument" : " arguments");
+		} else if (max == min + 1) {
+			rangeStr = Utils::toString(min) + " or " + Utils::toString(max) +
+			           " arguments";
+		} else {
+			rangeStr = Utils::toString(min) + " to " + Utils::toString(max) +
+			           " arguments";
+		}
+		throw std::runtime_error("Directive '" + tokens[0].value +
+		                         "' requires " + rangeStr + " on line " +
+		                         Utils::toString(tokens[0].line));
+	}
+}
+
+void Utils::assertMinArgs(const std::vector<Token>& tokens, size_t min) {
+	if (tokens.empty()) {
+		throw std::runtime_error("Empty directive tokens");
+	}
+	size_t count = tokens.size() - 1;
+	if (count < min) {
+		throw std::runtime_error("Directive '" + tokens[0].value +
+		                         "' requires at least " + Utils::toString(min) +
+		                         (min == 1 ? " argument" : " arguments") +
+		                         " on line " + Utils::toString(tokens[0].line));
+	}
 }
 
 Utils::Utils() {}

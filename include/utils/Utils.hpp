@@ -6,14 +6,17 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 02:57:55 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 00:13:54 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 20:12:14 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
+#include "parser/Lexer.hpp"
+#include <cstddef>
 #include <sstream>
+#include <vector>
 
 class Utils {
 public:
@@ -24,9 +27,14 @@ public:
 		return oss.str();
 	}
 	static std::string readFile(const std::string&);
-	static int toInt(const std::string& str);
-	static size_t parseSize(const std::string& str);
-	static bool isValidHost(const std::string& host);
+	static int toInt(const std::string&);
+	static size_t parseSize(const std::string&);
+	static bool isValidHost(const std::string&);
+
+	static void assertArgs(const std::vector<Token>&, size_t);
+	static void assertArgs(const std::vector<Token>&, size_t, size_t);
+	static void assertMinArgs(const std::vector<Token>&, size_t);
+
 private:
 	Utils();
 	Utils(const Utils&);
