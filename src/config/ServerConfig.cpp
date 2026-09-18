@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 00:20:00 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 20:42:10 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 20:56:23 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -269,9 +269,9 @@ void ServerConfig::handleListen(const std::vector<Token>& tokens) {
 		                         Utils::toString(tokens[0].line));
 	}
 	int port = Utils::toInt(portStr);
-	if (port <= 0 || port > 65535) {
-		throw std::runtime_error(
-		    "Invalid port on line " + Utils::toString(tokens[0].line));
+	if (!Utils::isValidPort(port)) {
+		throw std::runtime_error("Invalid port '" + portStr + "' on line " +
+		                         Utils::toString(tokens[0].line));
 	}
 	_port = port;
 }
@@ -326,7 +326,7 @@ void ServerConfig::handleErrorPage(const std::vector<Token>& tokens) {
 	for (std::vector<Token>::const_iterator it = tokens.begin() + 1;
 	     it != tokens.end() - 1; ++it) {
 		int code = Utils::toInt(it->value);
-		if (code < 300 || code > 599) {
+		if (!Utils::isValidErrorCode(code)) {
 			throw std::runtime_error("Invalid HTTP error code '" + it->value +
 			                         "' on line " +
 			                         Utils::toString(tokens[0].line));

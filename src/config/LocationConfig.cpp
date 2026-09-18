@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 00:20:00 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 20:42:10 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 20:56:23 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -270,7 +270,7 @@ void LocationConfig::handleIndex(const std::vector<Token>& tokens) {
 
 void LocationConfig::handleAutoindex(const std::vector<Token>& tokens) {
 	Utils::assertArgs(tokens, 1);
-	if (tokens[1].value != "on" && tokens[1].value != "off") {
+	if (!Utils::isValidOnOff(tokens[1].value)) {
 		throw std::runtime_error(
 		    "Directive 'autoindex' must be 'on' or 'off' on line " +
 		    Utils::toString(tokens[0].line));
@@ -282,7 +282,7 @@ void LocationConfig::handleReturn(const std::vector<Token>& tokens) {
 	Utils::assertArgs(tokens, 1, 2);
 	if (tokens.size() == 3) {
 		int code = Utils::toInt(tokens[1].value);
-		if (code < 300 || code > 399) {
+		if (!Utils::isValidRedirectCode(code)) {
 			throw std::runtime_error("Invalid redirect status code '" +
 			                         tokens[1].value + "' on line " +
 			                         Utils::toString(tokens[0].line));
@@ -302,7 +302,7 @@ void LocationConfig::handleClientMaxBodySize(const std::vector<Token>& tokens) {
 
 void LocationConfig::handleUploadEnable(const std::vector<Token>& tokens) {
 	Utils::assertArgs(tokens, 1);
-	if (tokens[1].value != "on" && tokens[1].value != "off") {
+	if (!Utils::isValidOnOff(tokens[1].value)) {
 		throw std::runtime_error(
 		    "Directive 'upload_enable' must be 'on' or 'off' on line " +
 		    Utils::toString(tokens[0].line));

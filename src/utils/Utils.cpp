@@ -115,9 +115,29 @@ bool Utils::isValidHost(const std::string& host) {
 	return dots == 3;
 }
 
+bool Utils::isValidPort(int port) {
+	return port > 0 && port <= 65535;
+}
+
 bool Utils::isValidMethod(const std::string& method) {
 	return (method == "GET" || method == "POST" || method == "DELETE" ||
 	        method == "HEAD" || method == "PUT");
+}
+
+bool Utils::isValidOnOff(const std::string& val) {
+	return (val == "on" || val == "off");
+}
+
+bool Utils::isValidErrorCode(int code) {
+	return code >= 300 && code <= 599;
+}
+
+bool Utils::isValidRedirectCode(int code) {
+	return code >= 300 && code <= 399;
+}
+
+bool Utils::isValidLocationPath(const std::string& path) {
+	return !path.empty() && path[0] == '/';
 }
 
 void Utils::assertArgs(const std::vector<Token>& tokens, size_t expected) {

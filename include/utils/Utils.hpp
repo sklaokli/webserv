@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 02:57:55 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 20:40:09 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 20:56:23 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,12 @@ public:
 	static int toInt(const std::string&);
 	static size_t parseSize(const std::string&);
 	static bool isValidHost(const std::string&);
+	static bool isValidPort(int);
 	static bool isValidMethod(const std::string&);
+	static bool isValidOnOff(const std::string&);
+	static bool isValidErrorCode(int);
+	static bool isValidRedirectCode(int);
+	static bool isValidLocationPath(const std::string&);
 
 	static void assertArgs(const std::vector<Token>&, size_t);
 	static void assertArgs(const std::vector<Token>&, size_t, size_t);
