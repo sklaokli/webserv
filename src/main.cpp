@@ -6,11 +6,12 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 11:51:46 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/16 01:39:17 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/18 21:09:25 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "Logger.hpp"
+#include "config/Config.hpp"
+#include "utils/Logger.hpp"
 #include <iostream>
 #include <string>
 
@@ -27,7 +28,6 @@ static bool parseArgs(int argc, char** argv, std::string& filePath) {
 				return false;
 			}
 			Logger::setLogLevel(DEBUG);
-			debugSet = true;
 		} else if (!arg.empty() && arg[0] == '-') {
 			Logger::error("Unknown option '" + arg + "'");
 			return false;
@@ -50,8 +50,8 @@ int main(int argc, char** argv) {
 	try {
 		Logger::info("Loading configuration...");
 
-		// Config config(filePath);
-		// config.parse();
+		Config config(filePath);
+		config.parse();
 
 		// Server webserv(config);
 		// webserv.run();
@@ -64,6 +64,6 @@ int main(int argc, char** argv) {
 		return 1;
 	}
 
-	Logger::info("Webserv stopped");
+	Logger::info("Stopping webserv...");
 	return 0;
 }

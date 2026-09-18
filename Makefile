@@ -6,7 +6,7 @@
 #    By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2026/06/24 06:39:09 by sklaokli          #+#    #+#              #
-#    Updated: 2026/09/11 14:54:25 by sklaokli         ###   ########.fr        #
+#    Updated: 2026/09/16 00:55:42 by sklaokli         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,15 +16,27 @@ SRC_DIR		:=	src
 OBJ_DIR		:=	bin
 INC_DIR		:=	include
 
-FILES		:=	main.cpp \
-				Logger.cpp
+SRC_MAIN	:=	main.cpp
 
-SRC			:=	$(addprefix $(SRC_DIR)/, $(FILES))
-OBJ			:=	$(addprefix $(OBJ_DIR)/, $(FILES:%.cpp=%.o))
+SRC_CONFIG	:=	Config.cpp \
+				ServerConfig.cpp \
+				LocationConfig.cpp
+
+SRC_PARSER	:=	Lexer.cpp \
+				Parser.cpp
+
+SRC_UTILS	:=	Logger.cpp \
+				Utils.cpp
+
+SRC			:=	$(addprefix $(SRC_DIR)/, $(SRC_MAIN)) \
+				$(addprefix $(SRC_DIR)/config/, $(SRC_CONFIG)) \
+				$(addprefix $(SRC_DIR)/parser/, $(SRC_PARSER)) \
+				$(addprefix $(SRC_DIR)/utils/, $(SRC_UTILS))
+
+OBJ			:=	$(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 DEP			:=	$(OBJ:%.o=%.d)
 
 CXX			:=	c++
-
 CXXFLAGS	+=	-Wall -Wextra -Werror
 CXXFLAGS	+=	-std=c++98 -pedantic
 CXXFLAGS	+=	-MMD -MP
