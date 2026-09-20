@@ -18,10 +18,15 @@
 static bool parseArgs(int argc, char** argv, std::string& filePath) {
 	filePath = "conf/default.conf";
 	bool configSet = false;
+	bool debugSet = false;
 
 	for (int i = 1; i < argc; ++i) {
 		std::string arg = argv[i];
 		if (arg == "--debug" || arg == "-d") {
+			if (debugSet) {
+				Logger::error("Duplicate option '" + arg + "'");
+				return false;
+			}
 			Logger::setLogLevel(DEBUG);
 		} else if (!arg.empty() && arg[0] == '-') {
 			Logger::error("Unknown option '" + arg + "'");
