@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 01:22:10 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 19:00:29 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/20 19:40:36 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,8 +25,8 @@ public:
 	Parser(const Parser&);
 	Parser& operator=(const Parser&);
 	~Parser();
-
-	void parseServer(ServerConfig&, std::vector<Token>::const_iterator&);
+	bool isDone() const;
+	void parseServer(ServerConfig&);
 
 private:
 	std::vector<Token>::const_iterator _it;

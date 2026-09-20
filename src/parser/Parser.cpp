@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 15:13:48 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 20:56:23 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/20 19:40:36 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,9 +41,11 @@ Parser& Parser::operator=(const Parser& other) {
 
 Parser::~Parser() {}
 
-void Parser::parseServer(
-    ServerConfig& server, std::vector<Token>::const_iterator& it) {
-	_it = it;
+bool Parser::isDone() const {
+	return _it == _end;
+}
+
+void Parser::parseServer(ServerConfig& server) {
 	_curServer = &server;
 
 	if (_it == _end) {
@@ -65,7 +67,6 @@ void Parser::parseServer(
 
 	_curServer->finalize();
 	_curServer = NULL;
-	it = _it;
 }
 
 void Parser::parseLocation() {

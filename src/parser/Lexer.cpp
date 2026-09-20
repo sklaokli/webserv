@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 00:32:00 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/17 23:43:50 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/20 19:45:40 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,6 +14,8 @@
 #include "utils/Logger.hpp"
 #include "utils/Utils.hpp"
 #include <cctype>
+
+Token::Token() : value(""), line(0) {}
 
 Token::Token(const std::string& val, size_t l) : value(val), line(l) {}
 

@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/13 15:42:28 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 21:09:25 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/09/20 19:40:36 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,10 +46,9 @@ void Config::parse() {
 	std::vector<Token> tokens = Lexer::tokenize(content);
 
 	Parser parser(tokens);
-	std::vector<Token>::const_iterator it = tokens.begin();
-	while (it != tokens.end()) {
+	while (!parser.isDone()) {
 		ServerConfig& server = addServer();
-		parser.parseServer(server, it);
+		parser.parseServer(server);
 	}
 	if (_servers.empty()) {
 		throw std::runtime_error("No server blocks found in " + _path);
