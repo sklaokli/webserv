@@ -42,10 +42,3 @@ __pycache__/
 ._*
 Thumbs.db
 *.pdf
-
-# Build directory (includes the router component harness)
-bin/
-
-# Local-only routing experiments
-/tests/
-/conf/routing-demo.conf

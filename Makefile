@@ -33,9 +33,6 @@ SRC			:=	$(addprefix $(SRC_DIR)/, $(SRC_MAIN)) \
 				$(addprefix $(SRC_DIR)/parser/, $(SRC_PARSER)) \
 				$(addprefix $(SRC_DIR)/utils/, $(SRC_UTILS))
 
-SRC_HTTP := PathResolver.cpp HttpResponse.cpp MimeTypes.cpp AutoIndex.cpp Router.cpp
-SRC += $(addprefix $(SRC_DIR)/http/, $(SRC_HTTP))
-
 OBJ			:=	$(SRC:$(SRC_DIR)/%.cpp=$(OBJ_DIR)/%.o)
 DEP			:=	$(OBJ:%.o=%.d)
 
@@ -65,19 +62,3 @@ re: fclean all
 -include $(DEP)
 
 .PHONY: all clean fclean re
-
-# Optional local experiments (not distributed in Git).
-ifneq ($(wildcard tests/router_demo.cpp),)
-ROUTER_OBJ := $(filter-out $(OBJ_DIR)/main.o,$(OBJ))
-ROUTER_DEMO := $(OBJ_DIR)/router_demo
-
-$(ROUTER_DEMO): $(ROUTER_OBJ) tests/router_demo.cpp
-	$(CXX) $(CXXFLAGS) tests/router_demo.cpp $(ROUTER_OBJ) -o $@
-
-route-demo: $(ROUTER_DEMO)
-
-test-router: $(ROUTER_DEMO)
-	python3 tests/test_router.py $(ROUTER_DEMO)
-
-.PHONY: route-demo test-router
-endif
