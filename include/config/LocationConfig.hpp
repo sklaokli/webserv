@@ -39,6 +39,7 @@ public:
 	const std::string& getPath() const;
 	const std::vector<std::string>& getAllowedMethods() const;
 	const std::string& getRoot() const;
+	const std::string& getAlias() const;
 	const std::string& getIndex() const;
 	bool getAutoindex() const;
 	int getRedirectCode() const;
@@ -58,6 +59,7 @@ private:
 
 	void handleAllowMethods(const std::vector<Token>&);
 	void handleRoot(const std::vector<Token>&);
+	void handleAlias(const std::vector<Token>&);
 	void handleIndex(const std::vector<Token>&);
 	void handleAutoindex(const std::vector<Token>&);
 	void handleReturn(const std::vector<Token>&);
@@ -69,6 +71,7 @@ private:
 	std::string _path;
 	std::vector<std::string> _allowedMethods;
 	std::string _root;
+	std::string _alias;
 	std::string _index;
 	bool _autoindex;
 	int _redirectCode;

@@ -178,34 +178,15 @@ std::string ServerConfig::getErrorPage(int code) const {
 }
 
 const LocationConfig* ServerConfig::findLocation(const std::string& uri) const {
-	const LocationConfig* bestMatch = NULL;
-	size_t longestMatchLen = 0;
-	std::string normUri = Utils::normalizePath(uri);
-
-	for (std::vector<LocationConfig>::const_iterator it = _locations.begin();
-	     it != _locations.end(); ++it) {
-		std::string normLoc = it->getPath();
-		if (normUri == normLoc) {
-			if (normLoc.length() >= longestMatchLen) {
-				longestMatchLen = normLoc.length();
-				bestMatch = &(*it);
-			}
-		} else if (normLoc == "/") {
-			if (1 >= longestMatchLen) {
-				longestMatchLen = 1;
-				bestMatch = &(*it);
-			}
-		} else if (normUri.find(normLoc) == 0) {
-			if (normUri.length() > normLoc.length() &&
-			    normUri[normLoc.length()] == '/') {
-				if (normLoc.length() >= longestMatchLen) {
-					longestMatchLen = normLoc.length();
-					bestMatch = &(*it);
-				}
-			}
-		}
-	}
-	return bestMatch;
+    const LocationConfig* best = NULL;
+    for (std::vector<LocationConfig>::const_iterator it = _locations.begin();
+         it != _locations.end(); ++it) {
+        const std::string& prefix = it->getPath();
+        if (uri.compare(0, prefix.size(), prefix) == 0 &&
+            (!best || prefix.size() > best->getPath().size()))
+            best = &(*it);
+    }
+    return best;
 }
 
 bool ServerConfig::isSingleDirective(const std::string& name) {

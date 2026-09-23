@@ -21,6 +21,7 @@ LocationConfig::LocationConfig()
     : _path("")
     , _allowedMethods()
     , _root("")
+    , _alias("")
     , _index("")
     , _autoindex(false)
     , _redirectCode(0)
@@ -32,9 +33,10 @@ LocationConfig::LocationConfig()
     , _configuredDirectives() {}
 
 LocationConfig::LocationConfig(const std::string& path)
-    : _path(Utils::normalizePath(path))
+    : _path(path)
     , _allowedMethods()
     , _root("")
+    , _alias("")
     , _index("")
     , _autoindex(false)
     , _redirectCode(0)
@@ -49,6 +51,7 @@ LocationConfig::LocationConfig(const LocationConfig& other)
     : _path(other._path)
     , _allowedMethods(other._allowedMethods)
     , _root(other._root)
+    , _alias(other._alias)
     , _index(other._index)
     , _autoindex(other._autoindex)
     , _redirectCode(other._redirectCode)
@@ -64,6 +67,7 @@ LocationConfig& LocationConfig::operator=(const LocationConfig& other) {
 		_path = other._path;
 		_allowedMethods = other._allowedMethods;
 		_root = other._root;
+		_alias = other._alias;
 		_index = other._index;
 		_autoindex = other._autoindex;
 		_redirectCode = other._redirectCode;
@@ -89,6 +93,10 @@ const std::vector<std::string>& LocationConfig::getAllowedMethods() const {
 
 const std::string& LocationConfig::getRoot() const {
 	return _root;
+}
+
+const std::string& LocationConfig::getAlias() const {
+	return _alias;
 }
 
 const std::string& LocationConfig::getIndex() const {
@@ -192,7 +200,7 @@ std::string LocationConfig::getCgiHandler(const std::string& ext) const {
 }
 
 bool LocationConfig::isSingleDirective(const std::string& name) {
-	return (name == "allow_methods" || name == "root" || name == "index" ||
+	return (name == "allow_methods" || name == "root" || name == "alias" || name == "index" ||
 	        name == "autoindex" || name == "return" ||
 	        name == "client_max_body_size" || name == "upload_enable" ||
 	        name == "upload_store");
@@ -208,6 +216,8 @@ void LocationConfig::applyDirective(const std::vector<Token>& tokens) {
 		handleAllowMethods(tokens);
 	else if (name == "root")
 		handleRoot(tokens);
+	else if (name == "alias")
+		handleAlias(tokens);
 	else if (name == "index")
 		handleIndex(tokens);
 	else if (name == "autoindex")
@@ -246,7 +256,18 @@ void LocationConfig::handleAllowMethods(const std::vector<Token>& tokens) {
 
 void LocationConfig::handleRoot(const std::vector<Token>& tokens) {
 	Utils::assertArgs(tokens, 1);
+	if (_configuredDirectives.count("alias"))
+		throw std::runtime_error("root and alias are mutually exclusive");
 	_root = tokens[1].value;
+}
+
+void LocationConfig::handleAlias(const std::vector<Token>& tokens) {
+	Utils::assertArgs(tokens, 1);
+	if (_configuredDirectives.count("root"))
+		throw std::runtime_error("root and alias are mutually exclusive");
+	if (tokens[1].value.empty())
+		throw std::runtime_error("alias must not be empty");
+	_alias = tokens[1].value;
 }
 
 void LocationConfig::handleIndex(const std::vector<Token>& tokens) {
