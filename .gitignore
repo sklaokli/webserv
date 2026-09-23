@@ -45,3 +45,7 @@ Thumbs.db
 
 # Build directory (includes the router component harness)
 bin/
+
+# Local-only routing experiments
+/tests/
+/conf/routing-demo.conf

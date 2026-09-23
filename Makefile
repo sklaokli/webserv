@@ -66,6 +66,8 @@ re: fclean all
 
 .PHONY: all clean fclean re
 
+# Optional local experiments (not distributed in Git).
+ifneq ($(wildcard tests/router_demo.cpp),)
 ROUTER_OBJ := $(filter-out $(OBJ_DIR)/main.o,$(OBJ))
 ROUTER_DEMO := $(OBJ_DIR)/router_demo
 
@@ -78,3 +80,4 @@ test-router: $(ROUTER_DEMO)
 	python3 tests/test_router.py $(ROUTER_DEMO)
 
 .PHONY: route-demo test-router
+endif

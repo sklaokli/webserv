@@ -1,5 +1,7 @@
 # Task 01: URL Router, Static Files และ AutoIndex
 
+> ไฟล์ทดลอง tests/ และ conf/routing-demo.conf ถูกเอาออกจาก Git และเพิ่มใน .gitignore แล้ว แต่ยังเก็บในเครื่องนี้ คำสั่ง make test-router / make route-demo และตัวอย่างที่ใช้ไฟล์เหล่านี้ด้านล่างต้องมีไฟล์ local จึงจะรันได้ ผลทดสอบเป็นบันทึกจากการรันก่อนเอาไฟล์ออก ไม่ใช่ชุดทดสอบที่มีให้ใน fresh clone
+
 ## สถานะงานและตำแหน่งไฟล์
 
 ทำใน `B:\webserv-wsl\webserv` ซึ่ง WSL เข้าถึงได้ที่

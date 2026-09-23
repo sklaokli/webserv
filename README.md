@@ -9,10 +9,10 @@ security policy, root/alias examples, and team integration instructions.
 On Linux/WSL2 with procfs available, run from the repository root:
 
     make
-    make test-router
-    ./bin/router_demo conf/routing-demo.conf GET /listing/
 
-The demo calls the real configuration parser and router, then prints an HTTP response.
+The experimental tests/ directory and conf/routing-demo.conf are local-only and ignored by Git.
+The optional route-demo and test-router targets require those local files;
+they are not available in a fresh clone. Earlier test results in the guide describe the local harness.
 The main executable currently parses configuration only; it does not listen on a port.
 Socket/event-loop integration, CGI execution, and upload/delete handlers remain separate tasks.
 

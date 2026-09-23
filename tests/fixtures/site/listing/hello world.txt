@@ -1,1 +1,0 @@
-This filename demonstrates URL encoding in an AutoIndex link.
