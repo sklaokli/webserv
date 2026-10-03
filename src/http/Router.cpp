@@ -1,4 +1,5 @@
 #include "http/Router.hpp"
+#include "http/FileMethodHandler.hpp"
 #include "http/AutoIndex.hpp"
 #include "http/MimeTypes.hpp"
 #include "http/PathResolver.hpp"
@@ -130,4 +131,8 @@ RouteResult Router::route(const std::string& method,
     result.response.headers["Content-Type"] = MimeTypes::lookup(contentPath);
     result.response.headers["X-Content-Type-Options"] = "nosniff";
     return result;
+}
+RouteResult Router::route(const std::string& method, const std::string& target,
+    const std::string& contentType, const std::string& body, const ServerConfig& server) {
+    return FileMethodHandler::handle(method, target, contentType, body, server);
 }

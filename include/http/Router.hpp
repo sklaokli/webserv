@@ -21,6 +21,10 @@ public:
     // target is the original origin-form request target, not pre-decoded.
     static RouteResult route(const std::string& method,
         const std::string& target, const ServerConfig& server);
+    // Dispatch complete POST/DELETE requests after HTTP framing/dechunking.
+    static RouteResult route(const std::string& method,
+        const std::string& target, const std::string& contentType,
+        const std::string& body, const ServerConfig& server);
     static HttpResponse error(int status, const ServerConfig& server);
 };
 #endif
