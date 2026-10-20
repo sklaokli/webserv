@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 13:45:03 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/13 16:39:24 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/10/20 21:58:13 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,13 +23,13 @@
 #define CYAN "\033[36m"
 #define WHITE "\033[37m"
 
-LogLevel Logger::_currentLevel = INFO;
+Logger::Level Logger::_currentLevel = Logger::INFO;
 
-void Logger::setLogLevel(LogLevel level) {
+void Logger::setLogLevel(Level level) {
 	_currentLevel = level;
 }
 
-void Logger::log(LogLevel level, const std::string& message) {
+void Logger::log(Level level, const std::string& message) {
 	if (level < _currentLevel) return;
 
 	const char* color = WHITE;
