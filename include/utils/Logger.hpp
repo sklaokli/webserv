@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 13:45:11 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/13 16:21:25 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/10/20 21:52:00 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,23 +15,24 @@
 
 #include <string>
 
-enum LogLevel { DEBUG, INFO, WARNING, ERROR };
-
 class Logger {
 public:
-	static void setLogLevel(LogLevel);
-	static void log(LogLevel, const std::string&);
+	enum Level { DEBUG, INFO, WARNING, ERROR };
+
+	static void setLogLevel(Level);
+	static void log(Level, const std::string&);
 	static void debug(const std::string&);
 	static void info(const std::string&);
 	static void warning(const std::string&);
 	static void error(const std::string&);
+
 private:
 	Logger();
 	Logger(const Logger&);
 	Logger& operator=(const Logger&);
 	~Logger();
 
-	static LogLevel _currentLevel;
+	static Level _currentLevel;
 };
 
 #endif

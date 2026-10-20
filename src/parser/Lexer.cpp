@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 00:32:00 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/20 19:45:40 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/10/20 21:05:00 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,14 @@ Lexer& Lexer::operator=(const Lexer& other) {
 
 Lexer::~Lexer() {}
 
+static void flushToken(
+    std::vector<Token>& tokens, std::string& current, size_t line) {
+	if (!current.empty()) {
+		tokens.push_back(Token(current, line));
+		current.clear();
+	}
+}
+
 std::vector<Token> Lexer::tokenize(const std::string& content) {
 	std::vector<Token> tokens;
 	std::string current;
@@ -51,27 +59,18 @@ std::vector<Token> Lexer::tokenize(const std::string& content) {
 
 		if (c == '#') {
 			inComment = true;
-			if (!current.empty()) {
-				tokens.push_back(Token(current, line));
-				current.clear();
-			}
+			flushToken(tokens, current, line);
 			continue;
 		}
 
 		if (c == '{' || c == '}' || c == ';') {
-			if (!current.empty()) {
-				tokens.push_back(Token(current, line));
-				current.clear();
-			}
+			flushToken(tokens, current, line);
 			tokens.push_back(Token(std::string(1, c), line));
 			continue;
 		}
 
 		if (std::isspace(static_cast<unsigned char>(c))) {
-			if (!current.empty()) {
-				tokens.push_back(Token(current, line));
-				current.clear();
-			}
+			flushToken(tokens, current, line);
 			if (c == '\n') {
 				++line;
 			}
@@ -81,11 +80,10 @@ std::vector<Token> Lexer::tokenize(const std::string& content) {
 		current += c;
 	}
 
-	if (!current.empty()) {
-		tokens.push_back(Token(current, line));
-	}
+	flushToken(tokens, current, line);
 
-	Logger::debug("Tokenized " + Utils::toString(tokens.size()) +
-	              " tokens across " + Utils::toString(line) + " lines");
+	Logger::debug(
+	    "Tokenized " + Utils::toString(tokens.size()) + " tokens across " +
+	    Utils::toString(line) + " lines");
 	return tokens;
 }

@@ -6,7 +6,7 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/16 00:20:00 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 21:09:25 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/10/20 21:44:00 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,9 +14,7 @@
 #define SERVERCONFIG_HPP
 
 #include "config/LocationConfig.hpp"
-#include "parser/Lexer.hpp"
 #include <map>
-#include <set>
 #include <string>
 #include <vector>
 
@@ -24,14 +22,20 @@ class ServerConfig {
 public:
 	typedef std::map<int, std::string> ErrorPageMap;
 
+	struct Ports {
+		static const int MIN = 1;
+		static const int MAX = 65535;
+	};
+
+	struct StatusCodes {
+		static const int MIN = 300;
+		static const int MAX = 599;
+	};
+
 	ServerConfig();
 	ServerConfig(const ServerConfig&);
 	ServerConfig& operator=(const ServerConfig&);
 	~ServerConfig();
-
-	void applyDirective(const std::vector<Token>&);
-	LocationConfig& addLocation(const std::string&);
-	void finalize();
 
 	void dump(size_t = 0) const;
 
@@ -44,23 +48,25 @@ public:
 	const std::string& getIndex() const;
 	const ErrorPageMap& getErrorPages() const;
 	const std::vector<LocationConfig>& getLocations() const;
+	std::vector<LocationConfig>& getLocations();
+	bool isDefault() const;
+
+	void setHost(const std::string&);
+	void setPort(int);
+	void setServerNames(const std::vector<std::string>&);
+	void addServerName(const std::string&);
+	void setClientMaxBodySize(size_t);
+	void setRoot(const std::string&);
+	void setIndex(const std::string&);
+	void setErrorPages(const ErrorPageMap&);
+	void addErrorPage(int, const std::string&);
+	void addLocation(const LocationConfig&);
+	void setDefault(bool);
 
 	std::string getErrorPage(int) const;
 	const LocationConfig* findLocation(const std::string&) const;
-	bool isDefault() const;
-	void setDefault(bool);
 
 private:
-	static bool isSingleDirective(const std::string&);
-
-	void handleListen(const std::vector<Token>&);
-	void handleHost(const std::vector<Token>&);
-	void handleServerName(const std::vector<Token>&);
-	void handleClientMaxBodySize(const std::vector<Token>&);
-	void handleRoot(const std::vector<Token>&);
-	void handleIndex(const std::vector<Token>&);
-	void handleErrorPage(const std::vector<Token>&);
-
 	std::string _host;
 	int _port;
 	std::vector<std::string> _serverNames;
@@ -70,7 +76,6 @@ private:
 	ErrorPageMap _errorPages;
 	std::vector<LocationConfig> _locations;
 	bool _isDefault;
-	std::set<std::string> _configuredDirectives;
 };
 
 #endif

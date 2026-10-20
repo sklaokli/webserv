@@ -6,52 +6,24 @@
 /*   By: sklaokli <sklaokli@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/09/11 11:51:46 by sklaokli          #+#    #+#             */
-/*   Updated: 2026/09/18 21:09:25 by sklaokli         ###   ########.fr       */
+/*   Updated: 2026/10/20 20:30:00 by sklaokli         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "config/Config.hpp"
+#include "parser/Parser.hpp"
 #include "utils/Logger.hpp"
 #include <iostream>
 #include <string>
 
-static bool parseArgs(int argc, char** argv, std::string& filePath) {
-	filePath = "conf/default.conf";
-	bool configSet = false;
-	bool debugSet = false;
-
-	for (int i = 1; i < argc; ++i) {
-		std::string arg = argv[i];
-		if (arg == "--debug" || arg == "-d") {
-			if (debugSet) {
-				Logger::error("Duplicate option '" + arg + "'");
-				return false;
-			}
-			Logger::setLogLevel(DEBUG);
-		} else if (!arg.empty() && arg[0] == '-') {
-			Logger::error("Unknown option '" + arg + "'");
-			return false;
-		} else if (!configSet) {
-			filePath = arg;
-			configSet = true;
-		} else {
-			Logger::error("Too many arguments");
-			return false;
-		}
-	}
-	return true;
-}
-
 int main(int argc, char** argv) {
-	std::string filePath;
-	if (!parseArgs(argc, argv, filePath)) return 1;
+	Parser parser;
+	if (!parser.parseArgs(argc, argv)) return 1;
 
 	Logger::info("Starting webserv...");
 	try {
 		Logger::info("Loading configuration...");
-
-		Config config(filePath);
-		config.parse();
+		Config config = parser.parseConfig();
 
 		// Server webserv(config);
 		// webserv.run();
